@@ -1,0 +1,33 @@
+name: Build Extension
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build and Zip Extension
+        run: |
+          bun run zip
+          bun run zip:firefox
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-builds
+          path: .output/*.zip
