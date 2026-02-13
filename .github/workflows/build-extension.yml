@@ -2,14 +2,18 @@ name: Build Extension
 
 on:
   push:
-    branches: [ main, master ]
+    tags:
+      - "v*"
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -30,7 +34,7 @@ jobs:
         run: |
           # Generate a private key for signing if not provided
           openssl genrsa -out key.pem 2048
-          
+
           # Install crx3 tool
           bun add -g crx3
 
@@ -38,7 +42,7 @@ jobs:
           # The dist folder is created by 'bun run build', which is run implicitly by 'bun run zip' 
           # but let's be explicit and ensure we have the unpacked build first.
           bun wxt build
-          
+
           # Use crx3 to pack the output directory
           # wxt outputs to 'dist' (unpacked) based on our config.
           # We need to find the manifest.json directory.
@@ -53,3 +57,13 @@ jobs:
           path: |
             dist/*.zip
             dist/*.crx
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/*.zip
+            dist/*.crx
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

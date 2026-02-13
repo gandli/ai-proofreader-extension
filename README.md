@@ -1,7 +1,7 @@
-<p align="center">
-<h1>AI 校对官 (AI Proofreader)</h1>
+<div align="center">
+  <h1>AI 校对官 (AI Proofreader)</h1>
   <img src="public/icon.svg" alt="AI Proofreader Logo" width="128" height="128" />
-</p>
+</div>
 
 [English](#ai-proofreader) | [中文](#ai-校对官)
 
