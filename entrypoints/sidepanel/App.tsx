@@ -318,23 +318,6 @@ function App() {
 
     return (
         <div className="sidepanel-container">
-            <header>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <div className={`status-badge ${status}`}>
-                        {status === 'idle' && t.status_idle}
-                        {status === 'loading' && `${t.status_loading} ${Math.round(progress.progress)}%`}
-                        {status === 'ready' && (settings.engine === 'online' ? t.status_ready_online : t.status_ready_local)}
-                        {Object.values(generatingModes).some(v => v) && t.status_generating}
-                        {status === 'error' && t.status_error}
-                    </div>
-                    <button className="settings-btn" onClick={() => {
-                        setTempSettings(settings); // Sync when opening
-                        setShowSettings(true);
-                    }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
-                    </button>
-                </div>
-            </header>
 
             <main className="content">
                 {status === 'loading' && (
@@ -370,6 +353,12 @@ function App() {
                         className={`mode-btn ${mode === 'expand' ? 'active' : ''}`}
                         onClick={() => setMode('expand')}
                     >{t.mode_expand}</button>
+                    <button className="settings-btn mode-settings-btn" onClick={() => {
+                        setTempSettings(settings); // Sync when opening
+                        setShowSettings(true);
+                    }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+                    </button>
                 </section>
 
                 <section className="input-area">
@@ -595,8 +584,16 @@ function App() {
                 </div>
             )}
 
-            <footer className="actions">
-                {status === 'idle' && (settings.engine === 'local-gpu' || settings.engine === 'local-wasm') ? (
+            <footer className="compact-footer">
+                {status === 'loading' ? (
+                    <button className="primary-btn" disabled>
+                        {progress.text || `${t.status_loading} ${Math.round(progress.progress)}%`}
+                    </button>
+                ) : status === 'error' ? (
+                    <button className="primary-btn" onClick={() => setStatus('idle')} style={{ background: '#e53e3e' }}>
+                        {t.status_error} (Click to Reset)
+                    </button>
+                ) : status === 'idle' && (settings.engine === 'local-gpu' || settings.engine === 'local-wasm') ? (
                     <button className="primary-btn" onClick={loadModel}>
                         {t.action_btn_load} ({settings.engine === 'local-gpu' ? 'WebGPU' : 'WASM'})
                     </button>
@@ -604,7 +601,7 @@ function App() {
                     <button
                         className="primary-btn"
                         onClick={handleAction}
-                        disabled={!selectedText || generatingModes[mode] || (status === 'loading' && settings.engine !== 'online')}
+                        disabled={!selectedText || generatingModes[mode]}
                     >
                         {generatingModes[mode] ? t.action_generating : `${t.action_btn_execute}${mode === 'summarize' ? t.mode_summarize :
                             mode === 'correct' ? t.mode_correct :
