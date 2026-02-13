@@ -352,6 +352,85 @@
         <button class="lang-btn active" onclick="setLanguage('en')">English</button>
         <button class="lang-btn" onclick="setLanguage('zh')">中文</button>
     </div>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <img src="public/icons/icon-128.png" alt="AI Proofreader Logo">
+                </div>
+                <span class="logo-text">AI Proofreader</span>
+            </div>
+            <h1 data-i18n="title">Privacy Policy</h1>
+            <p class="subtitle" data-i18n="subtitle">We value and protect your privacy</p>
+            <span class="update-date" data-i18n="updateDate">Last Updated: February 2026</span>
+        </header>
+
+        <main>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon shield">🛡️</div>
+                    <h2 data-i18n="dataCollectionTitle">Data Collection Statement</h2>
+                </div>
+                <p data-i18n="dataCollectionText1">
+                    AI Proofreader extension promises: <strong>We do not collect, read, or store any personal information from our users.</strong>
+                </p>
+                <p data-i18n="dataCollectionText2">
+                    Our extension is designed to provide high-quality proofreading and writing assistance while protecting user privacy. All operations are performed locally on your device or via secure, user-configured APIs, and no personal data is sent to our servers.
+                </p>
+                <div class="highlight-box">
+                    <p>✨ <span data-i18n="dataOwnership">Your data always belongs to you</span></p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon key">🔑</div>
+                    <h2 data-i18n="securityTitle">API & Model Security</h2>
+                </div>
+                <p data-i18n="securityText">
+                    This extension uses local AI models (WebLLM) or the Google Gemini API to provide intelligent text processing.
+                </p>
+                <ul>
+                    <li data-i18n="securityLi1">Your API key is stored only in your browser's local storage</li>
+                    <li data-i18n="securityLi2">API requests are sent directly from your device to Google's servers (if using Gemini API)</li>
+                    <li data-i18n="securityLi3">We do not collect, transmit, or store your API key or model configurations</li>
+                    <li data-i18n="securityLi4">You can delete or change your API key or model settings at any time</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon lock">🔒</div>
+                    <h2 data-i18n="notCollectTitle">What We Don't Collect</h2>
+                </div>
+                <p><span data-i18n="notCollectText">To clearly express our commitment to privacy, here is what we <strong>never collect</strong>:</span></p>
+                <ul>
+                    <li data-i18n="notCollectLi1">Your personal identification information</li>
+                    <li data-i18n="notCollectLi2">Your browsing history or websites visited</li>
+                    <li data-i18n="notCollectLi3">The text content you proofread or rewrite</li>
+                    <li data-i18n="notCollectLi4">Your IP address or geographic location</li>
+                    <li data-i18n="notCollectLi5">Your API keys or tokens</li>
+                    <li data-i18n="notCollectLi6">Any device or system information beyond generic diagnostics</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon mail">📬</div>
+                    <h2 data-i18n="contactTitle">Contact Us</h2>
+                </div>
+                <p data-i18n="contactText">
+                    If you have any questions or suggestions regarding this privacy policy, please open an issue on our GitHub repository. We are committed to responding to your feedback as soon as possible.
+                </p>
+            </div>
+        </main>
+
+        <footer>
+            <p data-i18n="footer">© 2026 Gandli. All rights reserved.</p>
+        </footer>
+    </div>
+
     <script>
         const translations = {
             en: {
@@ -427,397 +506,6 @@
             // Update title
             document.title = `Privacy Policy - ${lang === 'zh' ? '隐私政策' : 'Privacy Policy'}`;
         }
-
-        // Initialize with default or browser language
-        // const browserLang = navigator.language.startsWith('zh') ? 'zh' : 'en';
-        // setLanguage('en'); // Default to English for now, or use browserLang
     </script>
-</body>
-</html>
-    <style>
-        :root {
-            --bg-primary: #fffbf5;
-            --bg-secondary: #fff8ed;
-            --bg-card: #ffffff;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --accent: #FF5A11; /* Changed to AI Proofreader Orange */
-            --accent-light: #FF854D;
-            --accent-glow: rgba(255, 90, 17, 0.2);
-            --border: rgba(255, 90, 17, 0.3);
-            --border-light: rgba(255, 90, 17, 0.15);
-            --success: #22c55e;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            line-height: 1.8;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* Warm gradient background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(ellipse 80% 50% at 20% -20%, rgba(255, 133, 77, 0.15), transparent),
-                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255, 90, 17, 0.1), transparent),
-                radial-gradient(ellipse 40% 30% at 50% 50%, rgba(255, 200, 100, 0.1), transparent);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* Subtle dot pattern */
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: radial-gradient(rgba(255, 90, 17, 0.08) 1px, transparent 1px);
-            background-size: 24px 24px;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 60px 24px;
-            position: relative;
-            z-index: 1;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 60px;
-            animation: fadeInDown 0.8s ease-out;
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .logo {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-
-        .logo-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 8px 24px var(--accent-glow);
-            background: white; /* Added background */
-        }
-
-        .logo-icon img {
-            width: 80%; /* Adjusted size */
-            height: 80%;
-            object-fit: contain;
-        }
-
-        .logo-text {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        h1 {
-            font-size: 42px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            letter-spacing: -0.5px;
-            color: var(--text-primary);
-        }
-
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 18px;
-        }
-
-        .update-date {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 8px 16px;
-            background: var(--bg-card);
-            border: 2px solid var(--border);
-            border-radius: 20px;
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 2px solid var(--border-light);
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 24px rgba(255, 90, 17, 0.08); /* Updated shadow color */
-            animation: fadeInUp 0.6s ease-out backwards;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-
-        .card:hover {
-            border-color: var(--border);
-            box-shadow: 0 8px 32px rgba(255, 90, 17, 0.12); /* Updated match */
-        }
-
-        .card:nth-child(1) { animation-delay: 0.1s; }
-        .card:nth-child(2) { animation-delay: 0.2s; }
-        .card:nth-child(3) { animation-delay: 0.3s; }
-        .card:nth-child(4) { animation-delay: 0.4s; }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .card-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            flex-shrink: 0;
-        }
-
-        .card-icon.shield {
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05));
-            border: 2px solid rgba(34, 197, 94, 0.25);
-        }
-
-        .card-icon.key {
-            background: linear-gradient(135deg, rgba(255, 90, 17, 0.15), rgba(255, 90, 17, 0.05));
-            border: 2px solid rgba(255, 90, 17, 0.25);
-        }
-
-        .card-icon.lock {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
-            border: 2px solid rgba(239, 68, 68, 0.25);
-        }
-
-        .card-icon.mail {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
-            border: 2px solid rgba(59, 130, 246, 0.25);
-        }
-
-        h2 {
-            font-size: 22px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        p {
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-
-        p:last-child {
-            margin-bottom: 0;
-        }
-
-        p strong {
-            color: var(--text-primary);
-        }
-
-        .highlight-box {
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.02));
-            border: 2px solid rgba(34, 197, 94, 0.2);
-            border-radius: 12px;
-            padding: 20px 24px;
-            margin-top: 20px;
-        }
-
-        .highlight-box p {
-            color: var(--success);
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        ul {
-            list-style: none;
-            margin-top: 16px;
-        }
-
-        li {
-            color: var(--text-secondary);
-            padding: 12px 0;
-            padding-left: 32px;
-            position: relative;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        li:last-child {
-            border-bottom: none;
-        }
-
-        li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: var(--success);
-            font-weight: bold;
-        }
-
-        footer {
-            text-align: center;
-            padding: 40px 0;
-            color: var(--text-secondary);
-            font-size: 14px;
-            animation: fadeInUp 0.6s ease-out 0.5s backwards;
-        }
-
-        footer a {
-            color: var(--accent);
-            text-decoration: none;
-            transition: opacity 0.2s;
-        }
-
-        footer a:hover {
-            opacity: 0.8;
-        }
-
-        @media (max-width: 640px) {
-            .container {
-                padding: 40px 16px;
-            }
-
-            h1 {
-                font-size: 32px;
-            }
-
-            .card {
-                padding: 28px 24px;
-            }
-
-            .logo-text {
-                font-size: 22px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <div class="logo-icon">
-                    <img src="public/icons/icon-128.png" alt="AI Proofreader Logo">
-                </div>
-                <span class="logo-text">AI Proofreader</span>
-            </div>
-            <h1>Privacy Policy</h1>
-            <p class="subtitle">We value and protect your privacy</p>
-            <span class="update-date">Last Updated: February 2026</span>
-        </header>
-
-        <main>
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon shield">🛡️</div>
-                    <h2>Data Collection Statement</h2>
-                </div>
-                <p>
-                    AI Proofreader extension promises: <strong>We do not collect, read, or store any personal information from our users.</strong>
-                </p>
-                <p>
-                    Our extension is designed to provide high-quality proofreading and writing assistance while protecting user privacy. All operations are performed locally on your device or via secure, user-configured APIs, and no personal data is sent to our servers.
-                </p>
-                <div class="highlight-box">
-                    <p>✨ Your data always belongs to you</p>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon key">🔑</div>
-                    <h2>API & Model Security</h2>
-                </div>
-                <p>
-                    This extension uses local AI models (WebLLM) or the Google Gemini API to provide intelligent text processing.
-                </p>
-                <ul>
-                    <li>Your API key is stored only in your browser's local storage</li>
-                    <li>API requests are sent directly from your device to Google's servers (if using Gemini API)</li>
-                    <li>We do not collect, transmit, or store your API key or model configurations</li>
-                    <li>You can delete or change your API key or model settings at any time</li>
-                </ul>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon lock">🔒</div>
-                    <h2>What We Don't Collect</h2>
-                </div>
-                <p>To clearly express our commitment to privacy, here is what we <strong>never collect</strong>:</p>
-                <ul>
-                    <li>Your personal identification information</li>
-                    <li>Your browsing history or websites visited</li>
-                    <li>The text content you proofread or rewrite</li>
-                    <li>Your IP address or geographic location</li>
-                    <li>Your API keys or tokens</li>
-                    <li>Any device or system information beyond generic diagnostics</li>
-                </ul>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon mail">📬</div>
-                    <h2>Contact Us</h2>
-                </div>
-                <p>
-                    If you have any questions or suggestions regarding this privacy policy, please open an issue on our GitHub repository. We are committed to responding to your feedback as soon as possible.
-                </p>
-            </div>
-        </main>
-
-        <footer>
-            <p>© 2026 Gandli. All rights reserved.</p>
-        </footer>
-    </div>
 </body>
 </html>
