@@ -20,10 +20,19 @@
   padding-right: 4px;
 }
 
+.compact-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+  padding-top: 12px;
+}
 
 .mode-selector {
   display: flex;
-  background: #edf2f7;
+  background: #FFF5EB;
+  /* Warm Light Orange Background */
   padding: 4px;
   border-radius: 8px;
   gap: 4px;
@@ -44,12 +53,15 @@
 }
 
 .mode-btn:hover {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 90, 17, 0.1);
+  /* Light orange hover */
+  color: #FF5A11;
 }
 
 .mode-btn.active {
   background: white;
-  color: #3182ce;
+  color: #FF5A11;
+  /* Vibrant Orange */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
@@ -76,8 +88,10 @@ h3 {
 }
 
 .text-box.result {
-  border-color: #3182ce;
-  background: #f8fafc;
+  border-color: #FF5A11;
+  /* Vibrant Orange Border */
+  background: #FFF5EB;
+  /* Warm Light Orange Background */
   animation: fadeIn 0.3s ease-out;
 }
 
@@ -98,14 +112,16 @@ h3 {
 
 .mode-settings-btn:hover {
   background: white;
-  color: #3182ce;
+  color: #FF5A11;
+  /* Vibrant Orange */
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .primary-btn {
   width: 100%;
   padding: 14px;
-  background: #3182ce;
+  background: #FF5A11;
+  /* Vibrant Orange */
   color: white;
   border: none;
   border-radius: 8px;
@@ -113,11 +129,13 @@ h3 {
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 6px -1px rgba(49, 130, 206, 0.2);
+  box-shadow: 0 4px 6px -1px rgba(255, 90, 17, 0.2);
+  /* Orange Shadow */
 }
 
 .primary-btn:hover:not(:disabled) {
-  background: #2b6cb0;
+  background: #E04800;
+  /* Deep Orange Hover */
   transform: translateY(-1px);
 }
 
@@ -139,8 +157,8 @@ h3 {
 }
 
 .settings-btn:hover {
-  background: #edf2f7;
-  color: #3182ce;
+  background: #FFF5EB;
+  color: #FF5A11;
   opacity: 1;
 }
 
@@ -194,7 +212,8 @@ h3 {
 
 .progress-bar-inner {
   height: 100%;
-  background: #3182ce;
+  background: #FF5A11;
+  /* Vibrant Orange */
   transition: width 0.3s ease;
 }
 
@@ -307,10 +326,41 @@ h3 {
   background: #f8fafc;
 }
 
+.field input:focus,
+.field select:focus {
+  border-color: #FF5A11;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(255, 90, 17, 0.1);
+  outline: none;
+}
+
+.secondary-btn {
+  background: #FFF5EB;
+  border: 1px dashed rgba(255, 90, 17, 0.4);
+  color: #FF5A11;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.secondary-btn:hover {
+  background: #FFE0B2;
+  border-color: #FF5A11;
+  color: #E04800;
+}
+
 .save-btn {
   width: 100%;
   padding: 12px;
-  background: #38a169;
+  background: #FF5A11;
+  /* Brand Orange for primary action */
   color: white;
   border: none;
   border-radius: 8px;
@@ -318,6 +368,13 @@ h3 {
   font-size: 14px;
   cursor: pointer;
   margin-bottom: 24px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(255, 90, 17, 0.2);
+}
+
+.save-btn:hover {
+  background: #E04800;
+  transform: translateY(-1px);
 }
 
 .error-message {
