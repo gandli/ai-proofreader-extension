@@ -53,12 +53,10 @@ function App() {
                 setStatus('ready');
             } else if (type === 'update') {
                 const targetMode = event.data.mode || mode;
-                console.log(`[App] Update: ${targetMode}, len: ${text.length}`);
                 setModeResults(prev => ({ ...prev, [targetMode]: text }));
                 setGeneratingModes(prev => ({ ...prev, [targetMode]: true }));
             } else if (type === 'complete') {
                 const targetMode = event.data.mode || mode;
-                console.log(`[App] Complete: ${targetMode}, len: ${text.length}`);
                 setModeResults(prev => ({ ...prev, [targetMode]: text }));
                 setGeneratingModes(prev => ({ ...prev, [targetMode]: false }));
             } else if (type === 'error') {
@@ -84,7 +82,7 @@ function App() {
                         }
                     }
                 } catch (e) {
-                    console.log('Could not fetch page content:', e);
+                    console.error('Could not fetch page content:', e);
                 }
             }
 
@@ -149,13 +147,12 @@ function App() {
                 }
             }
         } catch (e) {
-            console.log('Could not fetch page content:', e);
+            console.error('Could not fetch page content:', e);
         }
     };
 
     const handleAction = () => {
         if (!selectedText || generatingModes[mode]) return;
-        console.log(`[App] Requesting ${mode} (${settings.engine}) for:`, selectedText);
         setGeneratingModes(prev => ({ ...prev, [mode]: true }));
         // Clear ONLY the current mode's result to show "thinking"
         setModeResults(prev => ({ ...prev, [mode]: '' }));

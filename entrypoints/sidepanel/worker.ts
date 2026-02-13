@@ -11,7 +11,6 @@ class WebLLMWorker {
 
         // Re-initialize if model or engine type changed
         if (this.engine && (this.currentModel !== model || this.currentEngineType !== engineType)) {
-            console.log("[Worker] Settings changed, re-loading engine...");
             // WebLLM handles reloading internally with .reload(modelId)
         }
 
@@ -27,7 +26,6 @@ class WebLLMWorker {
                 this.engine.setInitProgressCallback(onProgress);
             }
 
-            console.log(`[Worker] Loading WebLLM model: ${model} on ${engineType}`);
             // Note: engineType local-wasm can be hinted via appConfig if needed, 
             // but MLCEngine usually auto-detects. Forcing wasm requires special config.
             await this.engine.reload(model);
@@ -80,7 +78,6 @@ async function processLocalQueue() {
         const { text, mode, settings } = localRequestQueue.shift()!;
         try {
             const currentMode = mode || "proofread";
-            console.log(`[Worker] Processing queued local task: ${currentMode}`);
 
             const systemPrompt = getSystemPrompt(currentMode, settings);
             const userContent = `【待处理文本】：\n${text}`;
@@ -102,7 +99,6 @@ async function processLocalQueue() {
                 fullText += content;
                 self.postMessage({ type: "update", text: fullText, mode: currentMode });
             }
-            console.log(`[Worker] Local Gen Complete. Mode: ${currentMode}`);
             self.postMessage({ type: "complete", text: fullText, mode: currentMode });
         } catch (error: any) {
             console.error("[Worker] Local Generate Error:", error);

@@ -1,6 +1,4 @@
 export default defineBackground(() => {
-  console.log('Hello background!', { id: browser.runtime.id });
-
   // @ts-ignore
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
 
