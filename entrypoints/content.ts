@@ -1,4 +1,4 @@
-import { SVG_STRING } from './assets/floatingIcon';
+import { createFloatingIcon } from './utils/floatingIcon';
 import tailwindStyles from './content-styles.css?inline';
 
 export default defineContentScript({
@@ -339,74 +339,30 @@ export default defineContentScript({
       }
     };
 
-    const createFloatingIcon = () => {
-      const container = document.createElement('div');
-      container.id = 'ai-proofduck-icon-container';
-      const shadowRootNode = container.attachShadow({ mode: 'open' });
-
-      // Tailwind styles
-      const twStyle = document.createElement('style');
-      twStyle.textContent = tailwindStyles;
-      shadowRootNode.appendChild(twStyle);
-
-      // Custom resets & Host styles
-      const resetStyle = document.createElement('style');
-      resetStyle.textContent = `
-        :host {
-          position: absolute;
-          z-index: 2147483647;
-          top: 0;
-          left: 0;
-          cursor: pointer;
-          display: none;
-          pointer-events: auto;
-          width: 24px;
-          height: 24px;
-        }
-      `;
-      shadowRootNode.appendChild(resetStyle);
-
-      const icon = document.createElement('div');
-      icon.innerHTML = SVG_STRING;
-      // Using Tailwind for dimensions, transition, hover scale, and drop shadow
-      icon.className = 'w-6 h-6 flex drop-shadow-md transition-transform duration-200 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] hover:scale-[1.15]';
-
-      shadowRootNode.appendChild(icon);
-
-      container.addEventListener('mouseenter', () => {
-        if (hoverTimer) clearTimeout(hoverTimer);
-        hoverTimer = setTimeout(() => {
-          if (selectedText && lastRect) {
-            showTranslation(selectedText, lastRect);
-          }
-        }, 800);
-      });
-
-      container.addEventListener('mouseleave', () => {
-        if (hoverTimer) clearTimeout(hoverTimer);
-      });
-
-      icon.addEventListener('mousedown', (e: MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-      });
-
-      icon.addEventListener('click', async (e: MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        await browser.storage.local.set({ selectedText });
-        browser.runtime.sendMessage({ type: 'OPEN_SIDE_PANEL' });
-        hideIcon();
-        hideTranslation();
-      });
-
-      document.body.appendChild(container);
-      return container;
-    };
 
     const showIcon = (rect: DOMRect) => {
       if (!floatingIcon) {
-        floatingIcon = createFloatingIcon();
+        floatingIcon = createFloatingIcon({
+          onMouseEnter: () => {
+            if (hoverTimer) clearTimeout(hoverTimer);
+            hoverTimer = setTimeout(() => {
+              if (selectedText && lastRect) {
+                showTranslation(selectedText, lastRect);
+              }
+            }, 800);
+          },
+          onMouseLeave: () => {
+            if (hoverTimer) clearTimeout(hoverTimer);
+          },
+          onClick: async (e: MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            await browser.storage.local.set({ selectedText });
+            browser.runtime.sendMessage({ type: 'OPEN_SIDE_PANEL' });
+            hideIcon();
+            hideTranslation();
+          }
+        });
       }
 
       const iconWidth = 24;
