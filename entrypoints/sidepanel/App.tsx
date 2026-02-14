@@ -185,9 +185,38 @@ function App() {
         });
       }
     };
+    const runtimeListener = (message: any, sender: any, sendResponse: (res?: any) => void) => {
+      if (message.type === 'QUICK_TRANSLATE') {
+        const text = message.text;
+        // Trigger translation silently in background
+        const currentSettings = settingsRef.current;
+        
+        // We need a way to return the result via sendResponse.
+        // Since worker is async, we set up a one-time response listener.
+        const handleTranslateResponse = (event: MessageEvent<WorkerMessage>) => {
+          const { type, text: resultText, mode: resultMode } = event.data;
+          if ((type === 'complete' || type === 'error') && resultMode === 'translate') {
+            sendResponse({ translatedText: resultText || 'Error' });
+            worker.current?.removeEventListener('message', handleTranslateResponse);
+          }
+        };
+
+        worker.current?.addEventListener('message', handleTranslateResponse);
+        worker.current?.postMessage({
+          type: 'generate',
+          text,
+          mode: 'translate',
+          settings: currentSettings,
+        });
+        return true; // Keep message channel open for async response
+      }
+    };
+    browser.runtime.onMessage.addListener(runtimeListener);
+
     browser.storage.onChanged.addListener(listener);
 
     return () => {
+      browser.runtime.onMessage.removeListener(runtimeListener);
       browser.storage.onChanged.removeListener(listener);
       worker.current?.terminate();
     };
