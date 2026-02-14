@@ -14,7 +14,7 @@ export default defineContentScript({
     const createTranslationPopup = () => {
       const container = document.createElement('div');
       container.id = 'ai-proofduck-translation-popup';
-      const shadowRoot = container.attachShadow({ mode: 'open' });
+      const shadowRootNode = container.attachShadow({ mode: 'open' });
 
       const popup = document.createElement('div');
       popup.className = 'popup-content';
@@ -24,24 +24,27 @@ export default defineContentScript({
             <span class="dot"></span>
             <span class="status-text" id="status-label">TRANSLATING</span>
           </div>
-          <button class="close-btn" id="close-popup-btn">&times;</button>
+          <button class="close-btn" id="close-popup-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         </div>
         
         <div class="section">
-          <div class="label">SOURCE</div>
-          <div class="source-container">
-            <div class="source-text" id="source-display"></div>
-          </div>
+          <div class="section-label">ORIGINAL</div>
+          <div class="text-box source" id="source-display"></div>
         </div>
 
         <div class="section">
-          <div class="label">TRANSLATION</div>
-          <div class="content" id="translation-text">Translating...</div>
+          <div class="section-label">TRANSLATION</div>
+          <div class="text-box result" id="translation-text">Translating...</div>
         </div>
 
         <div class="footer">
           <div class="brand">AI Proofduck 🐣</div>
-          <button class="copy-btn" id="copy-translation-btn">Copy</button>
+          <button class="copy-btn" id="copy-translation-btn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <span>Copy</span>
+          </button>
         </div>
       `;
 
@@ -51,156 +54,229 @@ export default defineContentScript({
           position: absolute;
           z-index: 2147483647;
           display: none;
-          width: 340px;
-          background: #FFFBF5;
-          border-radius: 18px;
-          box-shadow: 0 12px 40px rgba(0,0,0,0.2);
-          border: 1px solid rgba(255, 90, 17, 0.15);
+          width: 300px;
+          background: #fbfbfb;
+          border-radius: 12px;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+          border: 1px solid #e2e8f0;
           overflow: hidden;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          font-family: Inter, system-ui, -apple-system, sans-serif;
           pointer-events: auto;
-          color: #4A4A4A;
+          color: #1a1a1a;
         }
+
+        @media (prefers-color-scheme: dark) {
+          :host {
+            background: #1a1a2e;
+            border-color: #3f3f5a;
+            color: #e2e8f0;
+          }
+        }
+
         .popup-content {
-          padding: 16px;
+          padding: 10px 12px;
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 8px;
         }
+
         .header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 4px;
+          margin-bottom: 2px;
         }
+
         .status-indicator {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 4px;
+          background: #fff5eb;
+          padding: 2px 8px;
+          border-radius: 12px;
         }
+        @media (prefers-color-scheme: dark) {
+          .status-indicator { background: #2d2d44; }
+        }
+
         .dot {
-          width: 8px;
-          height: 8px;
-          background: #FF5A11;
+          width: 5px;
+          height: 5px;
+          background: #ff5a11;
           border-radius: 50%;
         }
+
         .status-text {
-          color: #B45309;
-          font-weight: 800;
-          font-size: 13px;
-          letter-spacing: 0.5px;
+          color: #ff5a11;
+          font-weight: 700;
+          font-size: 10px;
+          text-transform: uppercase;
         }
+
         .close-btn {
-          background: none;
+          background: #edf2f7;
           border: none;
-          font-size: 24px;
-          color: #9CA3AF;
+          width: 22px;
+          height: 22px;
+          border-radius: 50%;
+          color: #718096;
           cursor: pointer;
-          padding: 0 4px;
-          line-height: 1;
           display: flex;
           align-items: center;
           justify-content: center;
+          transition: all 0.2s;
         }
-        .close-btn:hover { color: #FF5A11; }
-        
+        .close-btn:hover {
+          background: #e2e8f0;
+          color: #ff5a11;
+        }
+        @media (prefers-color-scheme: dark) {
+          .close-btn { background: #2d2d44; color: #a0aec0; }
+        }
+
         .section {
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          gap: 3px;
         }
-        .label {
-          font-size: 11px;
+
+        .section-label {
+          font-size: 9px;
           font-weight: 700;
-          color: #9CA3AF;
-          letter-spacing: 0.8px;
+          color: #94a3b8;
+          text-transform: uppercase;
+          letter-spacing: 0.2px;
+          padding-left: 2px;
         }
-        .source-container {
-          border-left: 3px solid #FED7AA;
-          padding-left: 10px;
-          margin: 4px 0;
-        }
-        .source-text {
-          font-size: 13px;
-          color: #6B7280;
-          font-style: italic;
-          line-height: 1.4;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-        .content {
-          font-size: 16px;
-          line-height: 1.6;
-          color: #1F2937;
-          font-weight: 600;
-          white-space: pre-wrap;
-          max-height: 200px;
+
+        .text-box {
+          background: white;
+          padding: 8px 10px;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          font-size: 12.5px;
+          line-height: 1.5;
+          max-height: 100px;
           overflow-y: auto;
-          min-height: 24px;
+          white-space: pre-wrap;
+          word-break: break-word;
         }
+
+        .text-box.source {
+          color: #64748b;
+          border-color: #f1f5f9;
+        }
+
+        .text-box.result {
+          background: #fff5eb;
+          border-color: rgba(255, 90, 17, 0.2);
+          color: #1a1a1a;
+          font-weight: 500;
+        }
+
+        @media (prefers-color-scheme: dark) {
+          .text-box {
+            background: #23233a;
+            border-color: #3f3f5a;
+            color: #e2e8f0;
+          }
+          .text-box.source { border-color: #2d2d44; }
+          .text-box.result {
+            background: rgba(255, 90, 17, 0.06);
+            border-color: rgba(255, 90, 17, 0.4);
+          }
+        }
+
         .footer {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-top: 4px;
-          padding-top: 10px;
-          border-top: 1px solid rgba(255, 90, 17, 0.08);
+          padding-top: 8px;
+          margin-top: 2px;
+          border-top: 1px solid #f1f5f9;
         }
+        @media (prefers-color-scheme: dark) {
+          .footer { border-top-color: #2d2d44; }
+        }
+
         .brand {
-          font-weight: 700;
-          font-size: 12px;
-          color: #FF5A11;
+          font-weight: 800;
+          font-size: 11px;
+          color: #ff5a11;
           display: flex;
           align-items: center;
           gap: 4px;
         }
+
         .copy-btn {
-          background: #FFF;
-          border: 1.5px solid #FED7AA;
-          color: #C2410C;
-          padding: 6px 16px;
-          border-radius: 10px;
-          font-size: 13px;
-          font-weight: 700;
+          background: white;
+          border: 1px solid #e2e8f0;
+          color: #718096;
+          padding: 4px 10px;
+          border-radius: 6px;
+          font-size: 11px;
+          font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          transition: all 0.2s;
         }
+
         .copy-btn:hover {
-          background: #FFFAF5;
-          border-color: #FF5A11;
-          transform: translateY(-1px);
+          background: #fff5eb;
+          border-color: #ff5a11;
+          color: #ff5a11;
         }
-        .copy-btn:active { transform: translateY(0); }
+        
         .copy-btn.copied {
-          background: #FF5A11;
+          background: #ff5a11;
           color: white;
-          border-color: #FF5A11;
+          border-color: #ff5a11;
+        }
+
+        @media (prefers-color-scheme: dark) {
+          .copy-btn {
+            background: #2d2d44;
+            border-color: #4a4a6a;
+            color: #a0aec0;
+          }
+          .copy-btn:hover {
+            background: #2d1f10;
+            border-color: #ff5a11;
+            color: #ff7a3d;
+          }
+        }
+        
+        /* Scrollbar */
+        .text-box::-webkit-scrollbar { width: 3px; }
+        .text-box::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 2px; }
+        @media (prefers-color-scheme: dark) {
+          .text-box::-webkit-scrollbar-thumb { background: #4a4a6a; }
         }
       `;
 
-      shadowRoot.appendChild(style);
-      shadowRoot.appendChild(popup);
+      shadowRootNode.appendChild(style);
+      shadowRootNode.appendChild(popup);
       
       // Events
-      shadowRoot.getElementById('close-popup-btn')?.addEventListener('click', (e: MouseEvent) => {
+      shadowRootNode.getElementById('close-popup-btn')?.addEventListener('click', (e: MouseEvent) => {
         e.stopPropagation();
         hideTranslation();
       });
       
-      shadowRoot.getElementById('copy-translation-btn')?.addEventListener('click', async (e: MouseEvent) => {
+      shadowRootNode.getElementById('copy-translation-btn')?.addEventListener('click', async (e: MouseEvent) => {
         e.stopPropagation();
-        const text = shadowRoot.getElementById('translation-text')?.textContent;
+        const text = shadowRootNode.getElementById('translation-text')?.textContent;
         if (text && text !== 'Translating...') {
           try {
             await navigator.clipboard.writeText(text);
-            const btn = shadowRoot.getElementById('copy-translation-btn') as HTMLButtonElement;
-            const original = btn.textContent;
-            btn.textContent = 'Copied!';
+            const btn = shadowRootNode.getElementById('copy-translation-btn') as HTMLButtonElement;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span>Copied!</span>';
             btn.classList.add('copied');
             setTimeout(() => {
-              btn.textContent = original;
+              btn.innerHTML = originalHtml;
               btn.classList.remove('copied');
             }, 2000);
           } catch (err) {
@@ -228,15 +304,16 @@ export default defineContentScript({
       sourceEl.textContent = text;
       statusLabel.textContent = 'TRANSLATING';
 
-      const offset = 12;
+      const offset = 8;
       let left = rect.left + window.scrollX;
       let top = rect.bottom + window.scrollY + offset;
 
-      // Ensure popup doesn't go off-screen
       const viewportWidth = window.innerWidth;
-      if (left + 340 > viewportWidth - 20) {
-        left = viewportWidth - 340 - 20;
+      const popupWidth = 300;
+      if (left + popupWidth > viewportWidth - 15) {
+        left = viewportWidth - popupWidth - 15;
       }
+      if (left < 15) left = 15;
 
       translationPopup.style.left = `${left}px`;
       translationPopup.style.top = `${top}px`;
@@ -251,12 +328,12 @@ export default defineContentScript({
           contentEl.textContent = response.translatedText;
           statusLabel.textContent = 'COMPLETED';
         } else {
-          contentEl.textContent = 'Translation unavailable. Ensure sidepanel is initialized.';
+          contentEl.textContent = 'Unavailable. Ensure sidepanel is initialized.';
           statusLabel.textContent = 'FAILED';
         }
       } catch (err) {
         console.error('[AI Proofduck] Translation message error:', err);
-        contentEl.textContent = 'Sidepanel connection lost. Open sidepanel to enable translation.';
+        contentEl.textContent = 'Check sidepanel connection.';
         statusLabel.textContent = 'ERROR';
       }
     };
@@ -303,19 +380,15 @@ export default defineContentScript({
       shadowRootNode.appendChild(icon);
 
       container.addEventListener('mouseenter', () => {
-        console.log('[AI Proofduck] Hover started.');
         if (hoverTimer) clearTimeout(hoverTimer);
         hoverTimer = setTimeout(() => {
           if (selectedText && lastRect) {
             showTranslation(selectedText, lastRect);
-          } else {
-            console.warn('[AI Proofduck] No text or rect to translate.');
           }
         }, 800);
       });
 
       container.addEventListener('mouseleave', () => {
-        console.log('[AI Proofduck] Hover cancelled.');
         if (hoverTimer) clearTimeout(hoverTimer);
       });
 
@@ -371,7 +444,6 @@ export default defineContentScript({
     };
 
     document.addEventListener('mouseup', (e: MouseEvent) => {
-      // Logic to prevent showing icon if selection is inside our UI
       const target = e.target as HTMLElement;
       const iconContainer = document.getElementById('ai-proofduck-icon-container');
       const popupContainer = document.getElementById('ai-proofduck-translation-popup');
