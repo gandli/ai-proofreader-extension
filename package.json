@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@mlc-ai/web-llm": "^0.2.74",
+    "@mozilla/readability": "^0.6.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
@@ -30,12 +31,12 @@
     "@types/react": "^19.2.13",
     "@types/react-dom": "^19.2.3",
     "@wxt-dev/module-react": "^1.1.5",
+    "autoprefixer": "^10.4.17",
     "happy-dom": "^20.6.1",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18",
-    "wxt": "^0.20.17",
-    "tailwindcss": "^3.4.1",
-    "postcss": "^8.4.35",
-    "autoprefixer": "^10.4.17"
+    "wxt": "^0.20.17"
   }
 }

@@ -1,5 +1,6 @@
 import { SVG_STRING } from './assets/floatingIcon';
 import tailwindStyles from './content-styles.css?inline';
+import { getPageContent } from './utils/pageContent';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
@@ -485,7 +486,7 @@ export default defineContentScript({
       if (message.type === 'GET_PAGE_CONTENT') {
         const selection = window.getSelection();
         const text = selection?.toString().trim();
-        sendResponse({ content: text || document.body.innerText });
+        sendResponse({ content: text || getPageContent(document) });
       }
     });
 
