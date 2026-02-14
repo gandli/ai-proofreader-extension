@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@mlc-ai/web-llm": "^0.2.74",
+    "@mozilla/readability": "^0.6.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
@@ -27,6 +28,7 @@
     "@playwright/test": "^1.48.0",
     "@testing-library/react": "^16.3.2",
     "@types/chrome": "^0.1.36",
+    "@types/mozilla-readability": "^0.2.1",
     "@types/react": "^19.2.13",
     "@types/react-dom": "^19.2.3",
     "@wxt-dev/module-react": "^1.1.5",
