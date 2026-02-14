@@ -152,13 +152,15 @@ function App() {
             initialSettings.extensionLanguage = savedSettings.targetLanguage as string;
           }
           // Restore API key from session storage (more secure)
-          try {
-            const sessionData = await browser.storage.session.get(['apiKey']);
-            if (sessionData.apiKey) {
-              initialSettings.apiKey = sessionData.apiKey as string;
+          if (browser.storage.session) {
+            try {
+              const sessionData = await browser.storage.session.get(['apiKey']);
+              if (sessionData.apiKey) {
+                initialSettings.apiKey = sessionData.apiKey as string;
+              }
+            } catch (e) {
+              console.warn('Failed to restore API key from session storage:', e);
             }
-          } catch {
-            // session storage may not be available in all contexts
           }
           setSettings(initialSettings);
           if (savedSettings.engine === 'online') {
@@ -263,9 +265,13 @@ function App() {
       const { apiKey, ...settingsWithoutKey } = updated;
       await browser.storage.local.set({ settings: { ...settingsWithoutKey, apiKey: '' } });
       if (apiKey) {
-        await browser.storage.session.set({ apiKey }).catch(() => {
-          browser.storage.local.set({ settings: updated });
-        });
+        if (browser.storage.session) {
+          await browser.storage.session.set({ apiKey }).catch(() => {
+            browser.storage.local.set({ settings: updated });
+          });
+        } else {
+          await browser.storage.local.set({ settings: updated });
+        }
       }
     }
 
