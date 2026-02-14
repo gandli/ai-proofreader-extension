@@ -1,132 +1,92 @@
 <div align="center">
-  <h1>AI 校对鸭 (AI Proofduck)</h1>
-  <img src="public/icon.svg" alt="AI Proofduck Logo" width="128" height="128" />
-  <p>智能写作助手 · 隐私优先 · 本地全能</p>
-</div>
+  <a href="https://gandli.github.io/ai-proofduck-extension/">
+    <img src="public/icons/icon-128.png" alt="AI Proofduck Logo" width="128" height="128" style="border-radius: 24px; box-shadow: 0 12px 40px rgba(237, 80, 7, 0.15);" />
+  </a>
 
-<div align="center">
-  <a href="#-核心功能">核心功能</a> •
-  <a href="#-安装与开发">安装开发</a> •
-  <a href="#-项目结构">项目结构</a> •
-  <a href="#-配置说明">配置说明</a>
+  <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">AI Proofduck</h1>
+
+  <p style="font-size: 1.2rem; color: #666;">
+    <strong>Smart Writing Assistant · Privacy First · Fully Local</strong> <br/>
+    Make your writing professional, polished, and precise.
+  </p>
+
+  <p>
+    <a href="#-features">Features</a> •
+    <a href="#-privacy">Privacy</a> •
+    <a href="#-installation">Installation</a> •
+    <a href="#-tech-stack">Tech Stack</a>
+  </p>
+
+  <p>
+    <a href="https://astro.build"><img src="https://img.shields.io/badge/Built%20with-Astro%205.0-orange?style=flat-square&logo=astro" alt="Built with Astro"></a>
+    <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/Styled%20with-Tailwind-38B2AC?style=flat-square&logo=tailwind-css" alt="Styled with Tailwind CSS"></a>
+    <a href="https://lucide.dev"><img src="https://img.shields.io/badge/Icons-Lucide-pink?style=flat-square&logo=lucide" alt="Lucide Icons"></a>
+  </p>
+
+  <img src="public/images/screenshots/screenshot-en-summarize.png" alt="AI Proofduck Screenshot" width="800" style="border-radius: 12px; border: 1px solid #e5e5e5; margin-top: 20px;" />
 </div>
 
 <br />
 
-[English](#ai-proofduck) | [中文](#ai-校对鸭)
+> **AI Proofduck** is an immersive AI writing assistant residing in your browser's side panel. Leveraging cutting-edge WebGPU/WASM technology, we bring large model inference capabilities directly to your browser, ensuring absolute data privacy and lightning-fast response speeds.
 
 ---
 
-# AI 校对鸭
+## ✨ Core Features
 
-**AI 校对鸭** 是一款基于浏览器侧边栏的智能写作助手扩展。它利用先进的 AI 模型，为您提供实时的文本摘要、校对、润色、翻译和扩写服务。
+AI Proofduck focuses on improving the quality of your web-based writing with five core modes:
 
-### 🚀 为什么选择 AI 校对鸭？
+| Mode | Description |
+| :--- | :--- |
+| **📝 Summarize** | Instantly extract key points from long texts to grasp the main idea. |
+| **✅ Correct** | Precisely identify and fix spelling, grammar, and punctuation errors. |
+| **✨ Polish** | Optimize phrasing and sentence structure to enhance professionalism and flow. |
+| **🌍 Translate** | Context-aware translation across major global languages with high accuracy. |
+| **🚀 Expand** | Enrich details based on short keywords to add depth and logic to your expression. |
 
-- **🔒 隐私核心**：内置 WebGPU/WASM 引擎（如 Qwen2.5），数据完全在本地处理，不出浏览器。
-- **⚡ 极致体验**：支持划词触发，自动正文识别，侧边栏交互简洁流畅。
-- **🌐 灵活引擎**：既可完全本地运行，也支持连接您偏好的 OpenAI 兼容云端 API。
+### 🚀 Hybrid Intelligence
 
-## ✨ 核心功能
+We offer flexible inference engine choices to meet different scenario needs:
 
-- **多模式写作辅助**：
-  - **摘要 (Summarize)**：瞬间提取长文核心要点。
-  - **校对 (Correct)**：识别并修复语法、拼写和标点错误。
-  - **润色 (Polish)**：优化措辞，使表达更专业、更通顺。
-  - **翻译 (Translate)**：支持中英互译及多语言处理。
-  - **扩写 (Expand)**：根据简短关键词生成丰富的细节描述。
-- **现代化架构**：
-  - **落地页**：使用 [Astro](https://astro.build/) 构建的高性能组件化站点。
-  - **浏览器扩展**：基于 [WXT](https://wxt.dev/) + React 框架开发。
-- **开发者友好**：
-  - 内置 Playwright E2E 自动化测试。
-  - 完善的国际化 (I18n) 双语支持。
-
-## 🛠️ 安装与开发
-
-### 环境要求
-
-- Node.js >= 18
-- pnpm / npm / bun
-
-### 快速开始
-
-1. **克隆项目**
-
-   ```bash
-   git clone <repository-url>
-   cd ai-proofduck-extension
-   ```
-
-2. **安装依赖**
-
-   ```bash
-   bun install  # 推荐使用 bun
-   # 或
-   npm install
-   ```
-
-3. **运行落地页 (Astro)**
-
-   ```bash
-   npm run dev  # 启动 Astro 开发服务器，访问 http://localhost:4321
-   ```
-
-4. **开发扩展 (WXT)**
-
-   ```bash
-   # 此命令会在 Chrome 中加载扩展并开启热重载
-   npm run extension:dev
-   ```
-
-5. **运行测试**
-
-   ```bash
-   npx playwright test
-   ```
-
-## 📁 项目结构
-
-- `src/pages/` - Astro 落地页源码（包含首页、[更新日志](/changelog)、[隐私政策](/privacy)）
-- `src/components/` - Astro 公共组件
-- `entrypoints/` - WXT 扩展入口文件（Sidepanel, Content Scripts 等）
-- `public/` - 静态资源与多语言 JSON 数据
-- `tests/` - Playwright E2E 测试脚本
+- **⚡ WebGPU**: Utilizes hardware acceleration for extremely fast local inference (Recommended).
+- **🧩 WASM**: Pure CPU local inference with the best compatibility and lightweight efficiency.
+- **☁️ Online API**: Supports connection to OpenAI/Gemini compatible cloud models for maximum performance.
 
 ---
 
-# AI Proofduck
+## 🔒 Privacy First
 
-An intelligent writing assistant for your browser sidepanel.
-Privacy-first, AI-powered, and fully customizable.
+**Your data belongs to you.**
 
-## ✨ Key Features
+- **Zero Data Collection**: We do not collect, store, or analyze any of your input content or personal information.
+- **Local First**: Defaulting to local models, data processing is completed entirely on your device, without uploading to the cloud.
+- **Transparent & Controllable**: API keys are encrypted and stored locally in `localStorage`, and can be deleted at any time.
 
-- **🚀 Multi-Mode Writing**: Summarize, Correct, Polish, Translate, and Expand.
-- **🔒 Privacy First**: Local LLM support via WebGPU/WASM. No data tracking.
-- **🌐 Hybrid Engines**: Switch between local models and Online APIs (OpenAI compatible).
-- **🎨 Modern Stack**: Built with Astro (Landing Page) and WXT (Extension).
+For detailed policies, please visit: [Privacy Policy Page](https://gandli.github.io/ai-proofduck-extension/#privacy)
 
-## 🛠️ Development
+---
 
-### Setup
+## 🚀 Store Listing Details
 
-```bash
-bun install
-```
+### 1. Single Purpose Description
 
-### Running the Site
+**AI Proofduck** is an intelligent writing assistant focused on improving the quality of web-based writing. All functions (**Summarize**, **Correct**, **Proofread**, **Translate**, and **Expand**) are tightly aligned with the core goal of "text optimization and processing."
 
-```bash
-npm run dev
-```
+### 2. Permission Justifications
 
-### Running the Extension
+- **`sidePanel`**: Provides an immersive interaction interface for writing assistance without leaving the current page.
+- **`storage`**: Locally stores user preferences, engine selections, and encrypted API keys.
+- **`tts`**: Provides text-to-speech for accessibility and multi-modal proofreading.
+- **`activeTab`**: Adheres to the principle of least privilege, requesting temporary access to the current tab only when the user explicitly triggers the extension.
+- **`contextMenus`**: Adds a shortcut to the right-click menu, serving as a legitimate user-triggered interaction to grant `activeTab` access.
+- **`scripting`**: Used to safely read and process the selected text from the current page upon user activation.
 
-```bash
-npm run extension:dev
-```
+### 3. Remote Code Declaration
 
-## 📄 License
+This extension **DOES NOT** use any "Remote Hosted Code". All execution logic (JS/Wasm) is fully bundled within the extension package, complying with Content Security Policy (CSP) requirements.
 
-MIT © [Gandli](https://github.com/gandli)
+---
+
+<div align="center">
+  <p>MIT License © 2026 <a href="https://github.com/gandli">Gandli</a></p>
+</div>
