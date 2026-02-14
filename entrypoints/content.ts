@@ -176,7 +176,7 @@ export default defineContentScript({
         let btnLabel = 'Check Settings';
         let onAction: () => void | Promise<void> = async () => {
           await browser.storage.local.set({ activeTab: 'settings' });
-          browser.runtime.sendMessage({ type: 'OPEN_SIDE_PANEL' });
+          await browser.runtime.sendMessage({ type: 'OPEN_SIDE_PANEL' });
           hideTranslation();
         };
 
@@ -192,14 +192,14 @@ export default defineContentScript({
             : 'Engine is not ready. Open sidepanel to initialize.';
           btnLabel = 'Open Sidepanel';
           onAction = async () => {
-            browser.runtime.sendMessage({ type: 'OPEN_SIDE_PANEL' });
+            await browser.runtime.sendMessage({ type: 'OPEN_SIDE_PANEL' });
             hideTranslation();
           };
         } else if (errorCode === 'ENGINE_LOADING') {
           errorMsg = 'Initializing the model may take a few minutes, please do not close the sidebar.';
           btnLabel = 'View Progress';
           onAction = async () => {
-            browser.runtime.sendMessage({ type: 'OPEN_SIDE_PANEL' });
+            await browser.runtime.sendMessage({ type: 'OPEN_SIDE_PANEL' });
             hideTranslation();
           };
         } else if (errorCode === 'TIMEOUT') {
@@ -212,7 +212,7 @@ export default defineContentScript({
           errorMsg = 'Connection failed. Is the sidepanel open?';
           btnLabel = 'Try Opening Sidepanel';
           onAction = async () => {
-            browser.runtime.sendMessage({ type: 'OPEN_SIDE_PANEL' });
+            await browser.runtime.sendMessage({ type: 'OPEN_SIDE_PANEL' });
             hideTranslation();
           };
         }
@@ -395,7 +395,7 @@ export default defineContentScript({
         e.preventDefault();
         e.stopPropagation();
         await browser.storage.local.set({ selectedText });
-        browser.runtime.sendMessage({ type: 'OPEN_SIDE_PANEL' });
+        await browser.runtime.sendMessage({ type: 'OPEN_SIDE_PANEL' });
         hideIcon();
         hideTranslation();
       });
