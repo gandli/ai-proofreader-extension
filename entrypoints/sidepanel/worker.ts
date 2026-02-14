@@ -69,10 +69,18 @@ async function processLocalQueue() {
             });
 
             let fullText = "";
+            let lastUpdate = 0;
+            const UPDATE_INTERVAL = 50; // ms
+
             for await (const chunk of chunks) {
                 const content = chunk.choices[0]?.delta?.content || "";
                 fullText += content;
-                self.postMessage({ type: "update", text: fullText, mode: currentMode });
+
+                const now = Date.now();
+                if (now - lastUpdate > UPDATE_INTERVAL) {
+                    self.postMessage({ type: "update", text: fullText, mode: currentMode });
+                    lastUpdate = now;
+                }
             }
             console.log(`[Worker] Local Gen Complete. Mode: ${currentMode}`);
             self.postMessage({ type: "complete", text: fullText, mode: currentMode });
@@ -118,6 +126,8 @@ async function handleGenerateOnline(text: string, mode: string, settings: any) {
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         let fullText = "";
+        let lastUpdate = 0;
+        const UPDATE_INTERVAL = 50; // ms
 
         if (reader) {
             let buffer = "";
@@ -140,7 +150,12 @@ async function handleGenerateOnline(text: string, mode: string, settings: any) {
                             const json = JSON.parse(dataStr);
                             const content = json.choices[0]?.delta?.content || "";
                             fullText += content;
-                            self.postMessage({ type: "update", text: fullText, mode: currentMode });
+
+                            const now = Date.now();
+                            if (now - lastUpdate > UPDATE_INTERVAL) {
+                                self.postMessage({ type: "update", text: fullText, mode: currentMode });
+                                lastUpdate = now;
+                            }
                         } catch (e) {
                             buffer = line + '\n' + buffer;
                         }
