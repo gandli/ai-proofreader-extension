@@ -101,7 +101,9 @@ function App() {
     Promise.all([
       browser.storage.session.get(['selectedText']),
       browser.storage.local.get(['settings']),
-    ]).then(async ([sessionRes, localRes]) => {
+      // Optimistically fetch API key in parallel
+      browser.storage.session.get(['apiKey']).catch(() => ({})),
+    ]).then(async ([sessionRes, localRes, apiKeySessionRes]) => {
       let initialText = (sessionRes.selectedText as string) || '';
       const res = localRes as Record<string, unknown>;
 
@@ -133,13 +135,8 @@ function App() {
             initialSettings.extensionLanguage = savedSettings.targetLanguage as string;
           }
           // Restore API key from session storage (more secure)
-          try {
-            const sessionData = await browser.storage.session.get(['apiKey']);
-            if (sessionData.apiKey) {
-              initialSettings.apiKey = sessionData.apiKey as string;
-            }
-          } catch {
-            // session storage may not be available in all contexts
+          if (apiKeySessionRes && apiKeySessionRes.apiKey) {
+            initialSettings.apiKey = apiKeySessionRes.apiKey as string;
           }
           setSettings(initialSettings);
           if (savedSettings.engine === 'online') {

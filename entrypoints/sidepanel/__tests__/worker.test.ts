@@ -31,6 +31,11 @@ describe('processLocalQueue', () => {
         resetState();
         // Clear mocks
         vi.clearAllMocks();
+        let now = 1000;
+        vi.spyOn(Date, "now").mockImplementation(() => {
+            now += 60;
+            return now;
+        });
     });
 
     afterEach(() => {
