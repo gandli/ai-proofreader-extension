@@ -10,7 +10,6 @@ import {
   ClearIcon,
 } from './components/Icons';
 
-
 type ModeKey = 'summarize' | 'correct' | 'proofread' | 'translate' | 'expand';
 
 interface Settings {
@@ -70,18 +69,16 @@ function App() {
   });
   const worker = useRef<Worker | null>(null);
   const settingsRef = useRef(settings);
+  const statusRef = useRef(status);
 
   useEffect(() => {
     settingsRef.current = settings;
   }, [settings]);
 
   useEffect(() => {
+    statusRef.current = status;
     // Sync status to local storage so content script can know proactively
     browser.storage.local.set({ engineStatus: status });
-    return () => {
-      // Best effort to clear status when sidepanel closes
-      browser.storage.local.set({ engineStatus: 'idle' });
-    };
   }, [status]);
 
   useEffect(() => {
@@ -96,6 +93,7 @@ function App() {
         setProgress(progress);
       } else if (type === 'ready') {
         setStatus('ready');
+        setError('');
       } else if (type === 'update') {
         const targetMode = event.data.mode!;
 
@@ -110,19 +108,19 @@ function App() {
         const currentSettings = settingsRef.current;
         if (currentSettings.autoSpeak && typeof chrome !== 'undefined' && chrome.tts) {
           console.log('[App] Auto-speaking result:', text?.substring(0, 50) + '...');
-          chrome.tts.speak(text ?? '', { 
+          chrome.tts.speak(text ?? '', {
             rate: 1.0,
             onEvent: (event) => {
               if (event.type === 'error') {
                 console.error('[App] TTS Error:', event.errorMessage);
               }
-            }
+            },
           });
         }
       } else if (type === 'error') {
         const targetMode = event.data.mode;
         const errorContent = error ?? 'Unknown error';
-        
+
         if (!targetMode) {
           // This is likely a global/loading error
           console.error('[App] Global/Load Error:', errorContent);
@@ -130,9 +128,11 @@ function App() {
           setStatus('error');
           // Reset all generating states on global error
           setGeneratingModes({
+            summarize: false,
+            correct: false,
             proofread: false,
-            rewrite: false,
-            summarize: false
+            translate: false,
+            expand: false,
           });
         } else {
           console.error(`[App] Error in ${targetMode}:`, errorContent);
@@ -227,26 +227,33 @@ function App() {
         const currentSettings = settingsRef.current;
         console.log('[App] Received QUICK_TRANSLATE request.');
 
-        if (status === 'loading') {
+        const currentStatus = statusRef.current;
+        if (currentStatus === 'loading') {
           console.warn('[App] Engine is still loading, returning ENGINE_LOADING');
           sendResponse({ error: 'ENGINE_LOADING' });
           return;
         }
 
-        if (!worker.current || status === 'idle' || status === 'error') {
-          console.warn('[App] Worker not initialized or engine not ready for QUICK_TRANSLATE');
+        if (!worker.current || currentStatus === 'idle' || currentStatus === 'error') {
+          console.warn(
+            '[App] Worker not initialized or engine not ready for QUICK_TRANSLATE, status:',
+            currentStatus,
+          );
           // Check why worker is not initialized
           if (currentSettings.engine === 'online' && !currentSettings.apiKey) {
-             sendResponse({ error: 'NO_API_KEY' });
-          } else if ((currentSettings.engine === 'local-gpu' || currentSettings.engine === 'local-wasm') && !currentSettings.localModel) {
-             sendResponse({ error: 'NO_MODEL' });
+            sendResponse({ error: 'NO_API_KEY' });
+          } else if (
+            (currentSettings.engine === 'local-gpu' || currentSettings.engine === 'local-wasm') &&
+            !currentSettings.localModel
+          ) {
+            sendResponse({ error: 'NO_MODEL' });
           } else {
-             // General not ready
-             sendResponse({ error: 'ENGINE_NOT_READY' });
+            // General not ready
+            sendResponse({ error: 'ENGINE_NOT_READY' });
           }
           return;
         }
-        
+
         // Timeout for safety
         const timeoutId = setTimeout(() => {
           console.warn('[App] QUICK_TRANSLATE timed out.');
@@ -270,7 +277,7 @@ function App() {
           mode: 'translate',
           settings: currentSettings,
         });
-        return true; 
+        return true;
       }
     };
     browser.runtime.onMessage.addListener(runtimeListener);
@@ -286,6 +293,7 @@ function App() {
 
   const loadModel = () => {
     setStatus('loading');
+    setError('');
     worker.current?.postMessage({ type: 'load', settings });
   };
 
@@ -334,7 +342,7 @@ function App() {
 
   const handleAction = () => {
     if (!selectedText || generatingModes[mode]) return;
-
+    setError('');
     setGeneratingModes((prev) => ({ ...prev, [mode]: true }));
     // Clear ONLY the current mode's result to show "thinking"
     setModeResults((prev) => ({ ...prev, [mode]: '' }));
@@ -556,9 +564,14 @@ function App() {
         {status === 'loading' && (
           <div className="fixed inset-0 z-[2000] flex flex-col items-center justify-center bg-white/90 text-center p-10 dark:bg-[#1a1a2e]/95">
             <div className="w-full h-2 mb-3 overflow-hidden rounded-md bg-slate-200 dark:bg-slate-700">
-              <div className="h-full bg-brand-orange transition-all duration-300 ease-out" style={{ width: `${progress.progress}%` }}></div>
+              <div
+                className="h-full bg-brand-orange transition-all duration-300 ease-out"
+                style={{ width: `${progress.progress}%` }}
+              ></div>
             </div>
-            <div className="text-[13px] font-medium text-slate-600 dark:text-slate-400">{progress.text}</div>
+            <div className="text-[13px] font-medium text-slate-600 dark:text-slate-400">
+              {progress.text}
+            </div>
             <small className="mt-3 text-slate-400">{t.loading_tip}</small>
           </div>
         )}
@@ -601,15 +614,21 @@ function App() {
             onClick={() => {
               setShowSettings(true);
             }}
-          > 
+          >
             <SettingsIcon />
           </button>
         </div>
         <section className="flex flex-col flex-1 min-h-0">
           <div className="flex items-center justify-between mb-2.5">
-            <h3 className="m-0 text-[13px] font-semibold text-slate-500 dark:text-slate-400">{t.original_text}</h3>
+            <h3 className="m-0 text-[13px] font-semibold text-slate-500 dark:text-slate-400">
+              {t.original_text}
+            </h3>
             <div className="flex gap-1.5">
-              <button className="flex items-center justify-center p-1.5 text-slate-500 transition-all bg-white border border-slate-200 rounded-md cursor-pointer shadow-sm hover:bg-brand-orange-light hover:border-brand-orange hover:text-brand-orange hover:shadow-md hover:-translate-y-px dark:bg-brand-dark-surface dark:border-slate-700 dark:text-slate-400 dark:hover:bg-[#2d1f10] dark:hover:border-brand-orange dark:hover:text-[#ff7a3d]" onClick={handleClear} title={t.clear_btn || 'Clear'}>
+              <button
+                className="flex items-center justify-center p-1.5 text-slate-500 transition-all bg-white border border-slate-200 rounded-md cursor-pointer shadow-sm hover:bg-brand-orange-light hover:border-brand-orange hover:text-brand-orange hover:shadow-md hover:-translate-y-px dark:bg-brand-dark-surface dark:border-slate-700 dark:text-slate-400 dark:hover:bg-[#2d1f10] dark:hover:border-brand-orange dark:hover:text-[#ff7a3d]"
+                onClick={handleClear}
+                title={t.clear_btn || 'Clear'}
+              >
                 <ClearIcon />
               </button>
               <button
@@ -637,7 +656,9 @@ function App() {
         </section>
 
         {(modeResults[mode] || generatingModes[mode]) && (
-          <section className={`flex flex-col flex-1 min-h-0 transition-opacity ${status === 'loading' ? 'opacity-30' : 'opacity-100'}`}>
+          <section
+            className={`flex flex-col flex-1 min-h-0 transition-opacity ${status === 'loading' ? 'opacity-30' : 'opacity-100'}`}
+          >
             <div className="flex items-center justify-between mb-2.5">
               <h3 className="m-0 text-[13px] font-semibold text-slate-500 dark:text-slate-400">
                 {mode === 'summarize'
@@ -685,7 +706,7 @@ function App() {
               <textarea
                 className="flex-1 w-full min-h-[80px] p-3.5 text-sm leading-relaxed border rounded-xl outline-none resize-y shadow-sm transition-all whitespace-pre-wrap break-words bg-brand-orange-light border-brand-orange/30 animate-[fadeIn_0.4s_cubic-bezier(0.16,1,0.3,1)] focus:border-brand-orange focus:ring-4 focus:ring-brand-orange/10 dark:bg-brand-orange/10 dark:border-brand-orange/50 dark:text-slate-200 dark:focus:bg-brand-dark-bg dark:focus:border-[#ff7a3d] dark:focus:ring-[#ff7a3d]/10"
                 value={modeResults[mode]}
-                onChange={(e) => setModeResults(prev => ({ ...prev, [mode]: e.target.value }))}
+                onChange={(e) => setModeResults((prev) => ({ ...prev, [mode]: e.target.value }))}
                 placeholder={generatingModes[mode] ? t.thinking : ''}
                 readOnly={generatingModes[mode]}
               />
@@ -710,15 +731,22 @@ function App() {
           <div className="flex flex-col gap-4 w-full p-6 pb-4 bg-[#fbfbfb] rounded-t-[20px] max-h-[90vh] overflow-y-auto shadow-[-10px_25px_rgba(0,0,0,0.1)] animate-[slideUp_0.3s_cubic-bezier(0.16,1,0.3,1)] dark:bg-brand-dark-bg dark:shadow-[-10px_25px_rgba(0,0,0,0.3)]">
             <div className="flex items-center justify-between mb-2">
               <h2 className="m-0 text-xl font-extrabold">{t.settings}</h2>
-              <button className="flex items-center justify-center w-8 h-8 text-slate-500 border-none rounded-full cursor-pointer bg-slate-100 dark:bg-brand-dark-surface dark:text-slate-400" onClick={() => setShowSettings(false)}>
+              <button
+                className="flex items-center justify-center w-8 h-8 text-slate-500 border-none rounded-full cursor-pointer bg-slate-100 dark:bg-brand-dark-surface dark:text-slate-400"
+                onClick={() => setShowSettings(false)}
+              >
                 <CloseIcon />
               </button>
             </div>
 
             <div className="flex flex-col gap-3 p-4 bg-white border border-slate-200 rounded-xl dark:bg-brand-dark-surface dark:border-slate-700">
-              <h3 className="m-0 text-sm font-bold text-slate-800 dark:text-slate-200">{t.core_settings}</h3>
+              <h3 className="m-0 text-sm font-bold text-slate-800 dark:text-slate-200">
+                {t.core_settings}
+              </h3>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] text-slate-500 font-semibold uppercase dark:text-slate-400">{t.lang_label}</label>
+                <label className="text-[11px] text-slate-500 font-semibold uppercase dark:text-slate-400">
+                  {t.lang_label}
+                </label>
                 <select
                   className="p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:border-brand-orange focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-orange/10 dark:bg-brand-dark-bg dark:border-[#4a4a6a] dark:text-slate-200 dark:focus:bg-brand-dark-surface"
                   value={settings.extensionLanguage}
@@ -734,7 +762,9 @@ function App() {
                 </select>
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] text-slate-500 font-semibold uppercase dark:text-slate-400">{t.engine_label}</label>
+                <label className="text-[11px] text-slate-500 font-semibold uppercase dark:text-slate-400">
+                  {t.engine_label}
+                </label>
                 <select
                   className="p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:border-brand-orange focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-orange/10 dark:bg-brand-dark-bg dark:border-[#4a4a6a] dark:text-slate-200 dark:focus:bg-brand-dark-surface"
                   value={settings.engine}
@@ -747,7 +777,9 @@ function App() {
               </div>
               {(settings.engine === 'local-gpu' || settings.engine === 'local-wasm') && (
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] text-slate-500 font-semibold uppercase dark:text-slate-400">{t.model_label}</label>
+                  <label className="text-[11px] text-slate-500 font-semibold uppercase dark:text-slate-400">
+                    {t.model_label}
+                  </label>
                   <select
                     className="p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:border-brand-orange focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-orange/10 dark:bg-brand-dark-bg dark:border-[#4a4a6a] dark:text-slate-200 dark:focus:bg-brand-dark-surface"
                     value={settings.localModel}
@@ -803,9 +835,13 @@ function App() {
 
             {settings.engine === 'online' && (
               <div className="flex flex-col gap-3 p-4 bg-white border border-slate-200 rounded-xl dark:bg-brand-dark-surface dark:border-slate-700">
-                <h3 className="m-0 text-sm font-bold text-slate-800 dark:text-slate-200">{t.api_config}</h3>
+                <h3 className="m-0 text-sm font-bold text-slate-800 dark:text-slate-200">
+                  {t.api_config}
+                </h3>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] text-slate-500 font-semibold uppercase dark:text-slate-400">API Base URL</label>
+                  <label className="text-[11px] text-slate-500 font-semibold uppercase dark:text-slate-400">
+                    API Base URL
+                  </label>
                   <input
                     className="p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:border-brand-orange focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-orange/10 dark:bg-brand-dark-bg dark:border-[#4a4a6a] dark:text-slate-200 dark:focus:bg-brand-dark-surface"
                     type="text"
@@ -814,7 +850,9 @@ function App() {
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] text-slate-500 font-semibold uppercase dark:text-slate-400">API Key</label>
+                  <label className="text-[11px] text-slate-500 font-semibold uppercase dark:text-slate-400">
+                    API Key
+                  </label>
                   <input
                     className="p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:border-brand-orange focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-orange/10 dark:bg-brand-dark-bg dark:border-[#4a4a6a] dark:text-slate-200 dark:focus:bg-brand-dark-surface"
                     type="password"
@@ -823,7 +861,9 @@ function App() {
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] text-slate-500 font-semibold uppercase dark:text-slate-400">Model ID</label>
+                  <label className="text-[11px] text-slate-500 font-semibold uppercase dark:text-slate-400">
+                    Model ID
+                  </label>
                   <input
                     className="p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:border-brand-orange focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-orange/10 dark:bg-brand-dark-bg dark:border-[#4a4a6a] dark:text-slate-200 dark:focus:bg-brand-dark-surface"
                     type="text"
@@ -835,9 +875,13 @@ function App() {
             )}
 
             <div className="flex flex-col gap-3 p-4 bg-white border border-slate-200 rounded-xl dark:bg-brand-dark-surface dark:border-slate-700">
-              <h3 className="m-0 text-sm font-bold text-slate-800 dark:text-slate-200">{t.func_pref}</h3>
+              <h3 className="m-0 text-sm font-bold text-slate-800 dark:text-slate-200">
+                {t.func_pref}
+              </h3>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] text-slate-500 font-semibold uppercase dark:text-slate-400">{t.tone_label}</label>
+                <label className="text-[11px] text-slate-500 font-semibold uppercase dark:text-slate-400">
+                  {t.tone_label}
+                </label>
                 <select
                   className="p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:border-brand-orange focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-orange/10 dark:bg-brand-dark-bg dark:border-[#4a4a6a] dark:text-slate-200 dark:focus:bg-brand-dark-surface"
                   value={settings.tone}
@@ -850,7 +894,9 @@ function App() {
                 </select>
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] text-slate-500 font-semibold uppercase dark:text-slate-400">{t.detail_label}</label>
+                <label className="text-[11px] text-slate-500 font-semibold uppercase dark:text-slate-400">
+                  {t.detail_label}
+                </label>
                 <select
                   className="p-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:border-brand-orange focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-orange/10 dark:bg-brand-dark-bg dark:border-[#4a4a6a] dark:text-slate-200 dark:focus:bg-brand-dark-surface"
                   value={settings.detailLevel}
@@ -876,11 +922,11 @@ function App() {
             </div>
 
             <div className="flex flex-col gap-3 p-4 bg-white border border-slate-200 rounded-xl dark:bg-brand-dark-surface dark:border-slate-700">
-              <h3 className="m-0 text-sm font-bold text-slate-800 dark:text-slate-200">{t.offline_import_title}</h3>
+              <h3 className="m-0 text-sm font-bold text-slate-800 dark:text-slate-200">
+                {t.offline_import_title}
+              </h3>
               <div className="flex flex-col gap-1.5">
-                <p className="text-xs text-slate-500 mb-2">
-                  {t.offline_import_tip}
-                </p>
+                <p className="text-xs text-slate-500 mb-2">{t.offline_import_tip}</p>
                 <div className="flex flex-col gap-2 relative">
                   <button
                     className="flex items-center justify-center gap-1.5 py-2 px-3 text-[13px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg cursor-pointer transition-all w-full hover:bg-brand-orange-light hover:border-brand-orange hover:text-brand-orange hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed dark:bg-brand-dark-bg dark:border-slate-700 dark:text-slate-400 dark:hover:bg-[#2d1f10] dark:hover:border-brand-orange dark:hover:text-[#ff7a3d]"
@@ -930,7 +976,10 @@ function App() {
 
       <footer className="sticky bottom-0 left-0 right-0 p-3 bg-[#fbfbfb] border-t border-slate-100 dark:bg-brand-dark-bg dark:border-slate-800">
         {status === 'loading' ? (
-          <button className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-brand-orange border-none rounded-xl cursor-pointer shadow-md shadow-brand-orange/20 transition-all hover:bg-brand-orange-dark hover:shadow-lg hover:shadow-brand-orange/30 active:scale-[0.98] disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none dark:disabled:bg-slate-700 dark:disabled:text-slate-500" disabled>
+          <button
+            className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-brand-orange border-none rounded-xl cursor-pointer shadow-md shadow-brand-orange/20 transition-all hover:bg-brand-orange-dark hover:shadow-lg hover:shadow-brand-orange/30 active:scale-[0.98] disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none dark:disabled:bg-slate-700 dark:disabled:text-slate-500"
+            disabled
+          >
             {progress.text || `${t.status_loading} ${Math.round(progress.progress)}%`}
           </button>
         ) : status === 'error' ? (
@@ -942,7 +991,10 @@ function App() {
           </button>
         ) : status === 'idle' &&
           (settings.engine === 'local-gpu' || settings.engine === 'local-wasm') ? (
-          <button className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-brand-orange border-none rounded-xl cursor-pointer shadow-md shadow-brand-orange/20 transition-all hover:bg-brand-orange-dark hover:shadow-lg hover:shadow-brand-orange/30 active:scale-[0.98] disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none dark:disabled:bg-slate-700 dark:disabled:text-slate-500" onClick={loadModel}>
+          <button
+            className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-brand-orange border-none rounded-xl cursor-pointer shadow-md shadow-brand-orange/20 transition-all hover:bg-brand-orange-dark hover:shadow-lg hover:shadow-brand-orange/30 active:scale-[0.98] disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none dark:disabled:bg-slate-700 dark:disabled:text-slate-500"
+            onClick={loadModel}
+          >
             {t.action_btn_load} ({settings.engine === 'local-gpu' ? 'WebGPU' : 'WASM'})
           </button>
         ) : (

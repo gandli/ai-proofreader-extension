@@ -488,5 +488,25 @@ export default defineContentScript({
         sendResponse({ content: text || document.body.innerText });
       }
     });
+
+    // Listen for storage changes to update popup status (e.g. when engine becomes ready)
+    browser.storage.onChanged.addListener((changes, areaName) => {
+      if (areaName === 'local' && changes.engineStatus && translationPopup && translationPopup.style.display === 'block') {
+        const newStatus = changes.engineStatus.newValue as string;
+        const oldStatus = changes.engineStatus.oldValue as string;
+        
+        console.log(`[AI Proofduck] Engine status changed: ${oldStatus} -> ${newStatus}`);
+        
+        // If it becomes ready and we were showing an "Action Required" UI, retry translation
+        if (newStatus === 'ready' && selectedText) {
+          const shadowRootNode = translationPopup.shadowRoot!;
+          const statusLabel = shadowRootNode.getElementById('status-label');
+          if (statusLabel && statusLabel.textContent === 'ACTION_REQUIRED') {
+            console.log('[AI Proofduck] Engine ready, retrying translation automatically...');
+            showTranslation(selectedText, lastRect || new DOMRect());
+          }
+        }
+      }
+    });
   },
 });
