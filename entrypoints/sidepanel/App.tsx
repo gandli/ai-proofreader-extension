@@ -1,7 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
 import { translations } from './i18n';
-import { SettingsIcon, FetchIcon, CloseIcon, ExportIcon, ImportIcon, ClearIcon } from './components/Icons';
+import {
+  SettingsIcon,
+  FetchIcon,
+  CloseIcon,
+  ExportIcon,
+  ImportIcon,
+  ClearIcon,
+} from './components/Icons';
 
 type ModeKey = 'summarize' | 'correct' | 'proofread' | 'translate' | 'expand';
 
@@ -74,12 +81,12 @@ function App() {
         setStatus('ready');
       } else if (type === 'update') {
         const targetMode = event.data.mode!;
-        console.log(`[App] Update: ${targetMode}, len: ${text?.length ?? 0}`);
+
         setModeResults((prev) => ({ ...prev, [targetMode]: text ?? '' }));
         setGeneratingModes((prev) => ({ ...prev, [targetMode]: true }));
       } else if (type === 'complete') {
         const targetMode = event.data.mode!;
-        console.log(`[App] Complete: ${targetMode}, len: ${text?.length ?? 0}`);
+
         setModeResults((prev) => ({ ...prev, [targetMode]: text ?? '' }));
         setGeneratingModes((prev) => ({ ...prev, [targetMode]: false }));
       } else if (type === 'error') {
@@ -98,17 +105,17 @@ function App() {
 
         // If no text selected, try to get page content
         if (!initialText) {
-            if (typeof browser !== 'undefined' && browser.tabs) {
-                const tabs = await browser.tabs.query({ active: true, currentWindow: true });
-                if (tabs.length > 0 && tabs[0].id) {
-                const response = (await browser.tabs.sendMessage(tabs[0].id, {
-                    type: 'GET_PAGE_CONTENT',
-                })) as { content?: string };
-                if (response && response.content) {
-                    initialText = response.content;
-                }
-                }
+          if (typeof browser !== 'undefined' && browser.tabs) {
+            const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+            if (tabs.length > 0 && tabs[0].id) {
+              const response = (await browser.tabs.sendMessage(tabs[0].id, {
+                type: 'GET_PAGE_CONTENT',
+              })) as { content?: string };
+              if (response && response.content) {
+                initialText = response.content;
+              }
             }
+          }
         }
 
         setSelectedText(initialText);
@@ -185,26 +192,24 @@ function App() {
           });
         }
       }
-    } catch (e) {
-      console.log('Could not fetch page content:', e);
-    }
+    } catch (e) {}
   };
 
-    const handleClear = () => {
-        setSelectedText('');
-        // Also clear results when manually clearing input
-        setModeResults({
-            summarize: '',
-            correct: '',
-            proofread: '',
-            translate: '',
-            expand: ''
-        });
-    };
+  const handleClear = () => {
+    setSelectedText('');
+    // Also clear results when manually clearing input
+    setModeResults({
+      summarize: '',
+      correct: '',
+      proofread: '',
+      translate: '',
+      expand: '',
+    });
+  };
 
   const handleAction = () => {
     if (!selectedText || generatingModes[mode]) return;
-    console.log(`[App] Requesting ${mode} (${settings.engine}) for:`, selectedText);
+
     setGeneratingModes((prev) => ({ ...prev, [mode]: true }));
     // Clear ONLY the current mode's result to show "thinking"
     setModeResults((prev) => ({ ...prev, [mode]: '' }));
@@ -225,32 +230,32 @@ function App() {
     });
   }, [modeResults, mode]);
 
-    const updateSettings = async (newSettings: Partial<Settings>) => {
-        const updated = { ...settings, ...newSettings };
-        setSettings(updated);
+  const updateSettings = async (newSettings: Partial<Settings>) => {
+    const updated = { ...settings, ...newSettings };
+    setSettings(updated);
 
-        const engineChanged = newSettings.engine && newSettings.engine !== settings.engine;
-        const modelChanged = newSettings.localModel && newSettings.localModel !== settings.localModel;
+    const engineChanged = newSettings.engine && newSettings.engine !== settings.engine;
+    const modelChanged = newSettings.localModel && newSettings.localModel !== settings.localModel;
 
-        // Persist settings
-        if (typeof browser !== 'undefined' && browser.storage) {
-            const { apiKey, ...settingsWithoutKey } = updated;
-            await browser.storage.local.set({ settings: { ...settingsWithoutKey, apiKey: '' } });
-            if (apiKey) {
-                await browser.storage.session.set({ apiKey }).catch(() => {
-                    browser.storage.local.set({ settings: updated });
-                });
-            }
-        }
+    // Persist settings
+    if (typeof browser !== 'undefined' && browser.storage) {
+      const { apiKey, ...settingsWithoutKey } = updated;
+      await browser.storage.local.set({ settings: { ...settingsWithoutKey, apiKey: '' } });
+      if (apiKey) {
+        await browser.storage.session.set({ apiKey }).catch(() => {
+          browser.storage.local.set({ settings: updated });
+        });
+      }
+    }
 
-        // Handle engine/model side effects
-        if (updated.engine === 'online') {
-            setStatus('ready');
-        } else if (engineChanged || modelChanged || status === 'idle' || status === 'error') {
-            setStatus('loading');
-            worker.current?.postMessage({ type: 'load', settings: updated });
-        }
-    };
+    // Handle engine/model side effects
+    if (updated.engine === 'online') {
+      setStatus('ready');
+    } else if (engineChanged || modelChanged || status === 'idle' || status === 'error') {
+      setStatus('loading');
+      worker.current?.postMessage({ type: 'load', settings: updated });
+    }
+  };
 
   const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -475,32 +480,36 @@ function App() {
             <SettingsIcon />
           </button>
         </div>
-                <section className="input-area">
-                    <div className="section-header">
-                        <h3>{t.original_text}</h3>
-                        <div className="header-actions">
-                            <button className="fetch-btn" onClick={handleClear} title={t.clear_btn || 'Clear'}>
-                                <ClearIcon />
-                            </button>
-                            <button className="fetch-btn primary-action-btn" onClick={handleFetchContent} title={t.fetch_page_content || 'Fetch Page Content'}>
-                                <FetchIcon />
-                            </button>
-                        </div>
-                    </div>
-                    <div className="input-wrapper">
-                        <textarea
-                            className="text-box editable"
-                            value={selectedText}
-                            onChange={(e) => setSelectedText(e.target.value)}
-                            placeholder={t.placeholder}
-                        />
-                        {selectedText && (
-                            <div className="char-count">
-                                {selectedText.length} {t.char_count}
-                            </div>
-                        )}
-                    </div>
-                </section>
+        <section className="input-area">
+          <div className="section-header">
+            <h3>{t.original_text}</h3>
+            <div className="header-actions">
+              <button className="fetch-btn" onClick={handleClear} title={t.clear_btn || 'Clear'}>
+                <ClearIcon />
+              </button>
+              <button
+                className="fetch-btn primary-action-btn"
+                onClick={handleFetchContent}
+                title={t.fetch_page_content || 'Fetch Page Content'}
+              >
+                <FetchIcon />
+              </button>
+            </div>
+          </div>
+          <div className="input-wrapper">
+            <textarea
+              className="text-box editable"
+              value={selectedText}
+              onChange={(e) => setSelectedText(e.target.value)}
+              placeholder={t.placeholder}
+            />
+            {selectedText && (
+              <div className="char-count">
+                {selectedText.length} {t.char_count}
+              </div>
+            )}
+          </div>
+        </section>
 
         {(modeResults[mode] || generatingModes[mode]) && (
           <section className="output-area" style={{ opacity: status === 'loading' ? 0.3 : 1 }}>
@@ -548,14 +557,18 @@ function App() {
               </p>
             )}
             <div className="output-wrapper">
-                <div className="text-box result">
-                    {modeResults[mode] || (generatingModes[mode] && t.thinking)}
+              <textarea
+                className="text-box result"
+                value={modeResults[mode]}
+                onChange={(e) => setModeResults(prev => ({ ...prev, [mode]: e.target.value }))}
+                placeholder={generatingModes[mode] ? t.thinking : ''}
+                readOnly={generatingModes[mode]}
+              />
+              {modeResults[mode] && (
+                <div className="char-count">
+                  {modeResults[mode].length} {t.char_count}
                 </div>
-                {modeResults[mode] && (
-                    <div className="char-count">
-                        {modeResults[mode].length} {t.char_count}
-                    </div>
-                )}
+              )}
             </div>
           </section>
         )}
@@ -610,9 +623,7 @@ function App() {
                   <label>{t.model_label}</label>
                   <select
                     value={settings.localModel}
-                    onChange={(e) =>
-                      updateSettings({ localModel: e.target.value })
-                    }
+                    onChange={(e) => updateSettings({ localModel: e.target.value })}
                   >
                     <optgroup label="Qwen (通义千问)">
                       <option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC">
@@ -670,9 +681,7 @@ function App() {
                   <input
                     type="text"
                     value={settings.apiBaseUrl}
-                    onChange={(e) =>
-                      updateSettings({ apiBaseUrl: e.target.value })
-                    }
+                    onChange={(e) => updateSettings({ apiBaseUrl: e.target.value })}
                   />
                 </div>
                 <div className="field">

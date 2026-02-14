@@ -110,6 +110,7 @@ h3 {
   word-break: break-word;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  resize: vertical;
 }
 
 .text-box.result {
@@ -171,9 +172,9 @@ h3 {
 }
 
 .fetch-btn.primary-action-btn {
-  background: #FFF5EB;
+  background: #fff5eb;
   border-color: rgba(255, 90, 17, 0.2);
-  color: #FF5A11;
+  color: #ff5a11;
 }
 
 .fetch-btn {
