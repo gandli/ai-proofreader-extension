@@ -34,9 +34,7 @@ export class WebLLMWorker {
                 // Hint engineType via appConfig as suggested
                 (appConfig as any).engineType = 'wasm';
             }
-            this.engine.setAppConfig(appConfig);
-
-            await this.engine.reload(model);
+            await this.engine.reload(model, undefined, appConfig);
         }
 
         return this.engine;
