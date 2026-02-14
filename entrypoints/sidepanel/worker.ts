@@ -1,5 +1,5 @@
 import { MLCEngine, InitProgressReport, ChatCompletionMessageParam } from "@mlc-ai/web-llm";
-import { getSystemPrompt } from "./worker-utils";
+import { getSystemPrompt, validateApiBaseUrl } from "./worker-utils";
 
 class WebLLMWorker {
     static engine: MLCEngine | null = null;
@@ -92,6 +92,8 @@ async function handleGenerateOnline(text: string, mode: string, settings: any) {
         const userContent = `【待处理文本】：\n${text}`;
 
         if (!settings.apiKey) throw new Error("请在设置中配置 API Key");
+
+        validateApiBaseUrl(settings.apiBaseUrl);
 
         const response = await fetch(`${settings.apiBaseUrl}/chat/completions`, {
             method: 'POST',

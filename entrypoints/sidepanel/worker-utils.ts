@@ -16,3 +16,30 @@ export function getSystemPrompt(mode: string, settings: any) {
 
     return `${promptTemplate}${BASE_CONSTRAINT}${resultCommand}${SUFFIX_CONSTRAINT}`;
 }
+
+export function validateApiBaseUrl(url: string): void {
+    if (!url) {
+        throw new Error("API Base URL is required");
+    }
+
+    let urlObj: URL;
+    try {
+        urlObj = new URL(url);
+    } catch (e) {
+        throw new Error("Invalid API Base URL format");
+    }
+
+    if (urlObj.protocol === 'https:') {
+        return;
+    }
+
+    if (urlObj.protocol === 'http:') {
+        const hostname = urlObj.hostname;
+        if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]') {
+            return;
+        }
+        throw new Error("API Base URL must use HTTPS, unless it is a local address (localhost, 127.0.0.1)");
+    }
+
+    throw new Error("API Base URL must use HTTP or HTTPS protocol");
+}
