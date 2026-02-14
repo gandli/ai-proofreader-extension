@@ -10,27 +10,7 @@ import {
   ClearIcon,
 } from './components/Icons';
 
-type ModeKey = 'summarize' | 'correct' | 'proofread' | 'translate' | 'expand';
-
-interface Settings {
-  engine: string;
-  extensionLanguage: string;
-  tone: string;
-  detailLevel: string;
-  localModel: string;
-  apiBaseUrl: string;
-  apiKey: string;
-  apiModel: string;
-  autoSpeak: boolean;
-}
-
-interface WorkerMessage {
-  type: 'progress' | 'ready' | 'update' | 'complete' | 'error';
-  progress?: { progress: number; text: string };
-  text?: string;
-  error?: string;
-  mode?: ModeKey;
-}
+import { Settings, ModeKey, WorkerMessage } from "./types";
 
 function App() {
   const [selectedText, setSelectedText] = useState('');

@@ -1,12 +1,13 @@
 import { MLCEngine, InitProgressReport, ChatCompletionMessageParam } from "@mlc-ai/web-llm";
 import { getSystemPrompt } from "./worker-utils";
+import { Settings, ModeKey, WorkerRequest } from "./types";
 
 class WebLLMWorker {
     static engine: MLCEngine | null = null;
     static currentModel = "";
     static currentEngineType = "";
 
-    static async getEngine(settings: any, onProgress?: (progress: InitProgressReport) => void) {
+    static async getEngine(settings: Settings, onProgress?: (progress: InitProgressReport) => void) {
         const model = settings?.localModel || "Qwen2.5-0.5B-Instruct-q4f16_1-MLC";
         const engineType = settings?.engine || "local-gpu";
 
@@ -46,7 +47,7 @@ class WebLLMWorker {
 }
 
 // Queue management for local inference
-const localRequestQueue: { text: string; mode: string; settings: any }[] = [];
+const localRequestQueue: { text: string; mode: ModeKey; settings: Settings }[] = [];
 let isLocalProcessing = false;
 
 async function processLocalQueue() {
@@ -55,7 +56,7 @@ async function processLocalQueue() {
 
     while (localRequestQueue.length > 0) {
         const { text, mode, settings } = localRequestQueue.shift()!;
-        let currentMode = mode || "proofread";
+        const currentMode = mode;
         try {
             console.log(`[Worker] Processing queued local task: ${currentMode}`);
 
@@ -90,8 +91,8 @@ async function processLocalQueue() {
     isLocalProcessing = false;
 }
 
-async function handleGenerateOnline(text: string, mode: string, settings: any) {
-    const currentMode = mode || "proofread";
+async function handleGenerateOnline(text: string, mode: ModeKey, settings: Settings) {
+    const currentMode = mode;
     try {
         const systemPrompt = getSystemPrompt(currentMode, settings);
         const userContent = `【待处理文本】：\n${text}`;
@@ -160,11 +161,11 @@ async function handleGenerateOnline(text: string, mode: string, settings: any) {
 }
 
 self.onmessage = async (event: MessageEvent) => {
-    const { type, text, settings, mode } = event.data;
+    const request = event.data as WorkerRequest;
 
-    if (type === "load") {
+    if (request.type === "load") {
         try {
-            await WebLLMWorker.getEngine(settings, (progress) => {
+            await WebLLMWorker.getEngine(request.settings, (progress) => {
                 self.postMessage({
                     type: "progress",
                     progress: { status: "progress", progress: progress.progress * 100, text: progress.text }
@@ -174,7 +175,8 @@ self.onmessage = async (event: MessageEvent) => {
         } catch (error: any) {
             self.postMessage({ type: "error", error: error.message });
         }
-    } else if (type === "generate") {
+    } else if (request.type === "generate") {
+        const { text, mode, settings } = request;
         if (settings.engine === 'online') {
             handleGenerateOnline(text, mode, settings);
         } else {

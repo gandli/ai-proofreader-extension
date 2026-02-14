@@ -1,6 +1,7 @@
 import { TONE_MAP, DETAIL_MAP, BASE_CONSTRAINT, SUFFIX_CONSTRAINT, PROMPTS } from './prompts';
+import { Settings, ModeKey } from './types';
 
-export function getSystemPrompt(mode: string, settings: any) {
+export function getSystemPrompt(mode: ModeKey, settings: Settings) {
     const targetLang = settings?.extensionLanguage || "中文";
 
     const selectedTone = TONE_MAP[settings?.tone] || TONE_MAP.professional;
