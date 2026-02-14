@@ -1,3 +1,4 @@
+import { importFiles } from './file-utils';
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 import { translations } from './i18n';
@@ -394,39 +395,26 @@ function App() {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    setStatus('loading');
+    setStatus("loading");
     setProgress({ progress: 0, text: t.importing });
 
     try {
-      const cache = await caches.open('webllm/model');
-      const total = files.length;
-      let count = 0;
-
       const modelId = settings.localModel;
       const baseUrl = `https://huggingface.co/mlc-ai/${modelId}/resolve/main/`;
 
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const relativePath = file.webkitRelativePath.split('/').slice(1).join('/');
-        if (!relativePath) continue;
-
-        const url = new URL(relativePath, baseUrl).toString();
-        const response = new Response(file);
-        await cache.put(url, response);
-
-        count++;
-        setProgress({
-          progress: (count / total) * 100,
-          text: `${t.importing} (${count}/${total})`,
-        });
-      }
+      await importFiles(
+        files,
+        baseUrl,
+        (progress, text) => setProgress({ progress, text }),
+        t.importing
+      );
 
       alert(t.import_success);
-      setStatus('idle');
+      setStatus("idle");
     } catch (err: unknown) {
-      console.error('Import failed:', err);
+      console.error("Import failed:", err);
       setError(`${t.import_failed}: ${err instanceof Error ? err.message : String(err)}`);
-      setStatus('error');
+      setStatus("error");
     }
   };
 
