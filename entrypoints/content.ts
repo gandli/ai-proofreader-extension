@@ -48,8 +48,7 @@ export default defineContentScript({
       icon.addEventListener('click', async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        await browser.storage.local.set({ selectedText });
-        browser.runtime.sendMessage({ type: 'OPEN_SIDE_PANEL' });
+        await browser.runtime.sendMessage({ type: 'SAVE_TEXT_AND_OPEN', text: selectedText });
         hideIcon();
       });
 

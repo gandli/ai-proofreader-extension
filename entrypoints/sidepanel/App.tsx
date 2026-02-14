@@ -98,12 +98,14 @@ function App() {
     };
 
     // Initial load of selected text and settings
-    browser.storage.local
-      .get(['selectedText', 'settings'])
-      .then(async (res: Record<string, unknown>) => {
-        let initialText = (res.selectedText as string) || '';
+    Promise.all([
+      browser.storage.session.get(['selectedText']),
+      browser.storage.local.get(['settings']),
+    ]).then(async ([sessionRes, localRes]) => {
+      let initialText = (sessionRes.selectedText as string) || '';
+      const res = localRes as Record<string, unknown>;
 
-        // If no text selected, try to get page content
+      // If no text selected, try to get page content
         if (!initialText) {
           if (typeof browser !== 'undefined' && browser.tabs) {
             const tabs = await browser.tabs.query({ active: true, currentWindow: true });
@@ -147,7 +149,7 @@ function App() {
       });
 
     const listener = (changes: Record<string, { newValue?: unknown }>, areaName: string) => {
-      if (areaName === 'local' && changes.selectedText) {
+      if (areaName === 'session' && changes.selectedText) {
         const newText = (changes.selectedText.newValue as string) || '';
         setSelectedText(newText);
         // Clear all previous results when new text is selected
