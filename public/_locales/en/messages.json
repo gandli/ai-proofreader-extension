@@ -1,0 +1,14 @@
+{
+    "extensionName": {
+        "message": "AI proofduck",
+        "description": "Name of the extension"
+    },
+    "extensionDescription": {
+        "message": "Your intelligent writing assistant",
+        "description": "Description of the extension"
+    },
+    "fetch_page_content": {
+        "message": "Fetch Page Content",
+        "description": "Tooltip for fetch content button"
+    }
+}

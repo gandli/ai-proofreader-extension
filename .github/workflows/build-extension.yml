@@ -1,0 +1,69 @@
+name: Build Extension
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build and Zip Extension
+        run: |
+          bun run zip
+          bun run zip:firefox
+
+      - name: Build CRX
+        run: |
+          # Generate a private key for signing if not provided
+          openssl genrsa -out key.pem 2048
+
+          # Install crx3 tool
+          bun add -g crx3
+
+          # Pack the extension (dist folder) into a CRX
+          # The dist folder is created by 'bun run build', which is run implicitly by 'bun run zip' 
+          # but let's be explicit and ensure we have the unpacked build first.
+          bun wxt build
+
+          # Use crx3 to pack the output directory
+          # wxt outputs to 'dist' (unpacked) based on our config.
+          # We need to find the manifest.json directory.
+          # WXT builds to dist/chrome-mv3 (or similar depending on target).
+          # Let's target the chrome build.
+          crx3 dist/chrome-mv3 -p key.pem -o dist/ai-proofduck.crx
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-builds
+          path: |
+            dist/*.zip
+            dist/*.crx
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/*.zip
+            dist/*.crx
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

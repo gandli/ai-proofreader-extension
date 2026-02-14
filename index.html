@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary Meta Tags -->
+    <title>AI 校对鸭 - AI Proofduck</title>
+    <meta name="title" content="AI 校对鸭 - 智能写作助手 · 隐私优先">
+    <meta name="description" content="浏览器内置 AI 写作助手，支持摘要、校对、润色、翻译、扩写五大智能模式。完全本地推理，保护隐私，开箱即用。">
+    <meta name="keywords" content="AI 校对,智能写作,文本校对,AI 润色,AI 翻译,浏览器扩展,Chrome 扩展,本地 AI,WebGPU,隐私保护">
+    <meta name="author" content="Gandli">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://gandli.github.io/ai-proofduck-extension/">
+    <meta property="og:title" content="AI 校对鸭 - 智能写作助手 · 隐私优先">
+    <meta property="og:description" content="浏览器内置 AI 写作助手，支持摘要、校对、润色、翻译、扩写五大智能模式。完全本地推理，保护隐私，开箱即用。">
+    <meta property="og:image" content="https://gandli.github.io/ai-proofduck-extension/public/icons/icon-128.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://gandli.github.io/ai-proofduck-extension/">
+    <meta property="twitter:title" content="AI 校对鸭 - 智能写作助手 · 隐私优先">
+    <meta property="twitter:description" content="浏览器内置 AI 写作助手，支持摘要、校对、润色、翻译、扩写五大智能模式。完全本地推理，保护隐私，开箱即用。">
+    <meta property="twitter:image" content="https://gandli.github.io/ai-proofduck-extension/public/icons/icon-128.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://gandli.github.io/ai-proofduck-extension/">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="public/icon.svg">
+    <link rel="icon" type="image/png" sizes="16x16" href="public/icons/icon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="public/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="public/icons/icon-48.png">
+    <link rel="icon" type="image/png" sizes="128x128" href="public/icons/icon-128.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="public/icons/icon-128.png">
+    
+    <!-- Performance Optimization -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "AI 校对鸭",
+      "alternateName": "AI Proofduck",
+      "description": "浏览器内置 AI 写作助手，支持摘要、校对、润色、翻译、扩写五大智能模式。完全本地推理，保护隐私，开箱即用。",
+      "url": "https://gandli.github.io/ai-proofduck-extension/",
+      "applicationCategory": "BrowserApplication",
+      "operatingSystem": "Chrome, Edge, Firefox",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Gandli",
+        "url": "https://github.com/gandli"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5",
+        "ratingCount": "1"
+      }
+    }
+    </script>
+    
+    <style>
+        :root{--bg:#fffbf5;--bg2:#fff8ed;--card:#fff;--t1:#1f2937;--t2:#6b7280;--ac:#FF5A11;--acd:#E04800;--acl:#FF854D;--acg:rgba(255,90,17,.2);--bd:rgba(255,90,17,.3);--bdl:rgba(255,90,17,.15);--ok:#22c55e}
+        *{margin:0;padding:0;box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--t1);line-height:1.7;overflow-x:hidden}
+        *:focus-visible{outline:2px solid var(--ac);outline-offset:2px;border-radius:4px}
+        body::after{content:'';position:fixed;inset:0;background-image:radial-gradient(rgba(255,90,17,.06) 1px,transparent 1px);background-size:24px 24px;pointer-events:none;z-index:0}
+        nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,251,245,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdl);padding:0 24px}
+        .nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px}
+        .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--t1);font-weight:700;font-size:18px}
+        .nav-logo img{width:32px;height:32px;border-radius:8px}
+        .nav-links{display:flex;align-items:center;gap:24px}
+        .nav-links a{color:var(--t2);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
+        .nav-links a:hover{color:var(--ac)}
+        .lang-switch{display:flex;gap:6px}
+        .lang-btn{background:rgba(255,255,255,.5);border:1px solid var(--bdl);padding:4px 12px;border-radius:16px;cursor:pointer;font-size:13px;color:var(--t2);transition:all .2s;font-family:inherit}
+        .lang-btn:hover{border-color:var(--ac);color:var(--ac)}
+        .lang-btn.active{background:var(--ac);color:#fff;border-color:var(--ac)}
+        .hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;overflow:hidden}
+        .hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 30% 20%,rgba(255,133,77,.2),transparent),radial-gradient(ellipse 60% 50% at 70% 80%,rgba(255,90,17,.15),transparent),radial-gradient(ellipse 50% 40% at 50% 50%,rgba(255,200,100,.12),transparent);animation:pulse 8s ease-in-out infinite alternate}
+        @keyframes pulse{0%{opacity:.8;transform:scale(1)}100%{opacity:1;transform:scale(1.05)}}
+        .hero-content{position:relative;z-index:1;max-width:700px}
+        .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:2px solid var(--bd);padding:8px 20px;border-radius:30px;font-size:14px;color:var(--ac);font-weight:600;margin-bottom:32px;box-shadow:0 4px 16px var(--acg)}
+        .hero h1{font-size:72px;font-weight:800;letter-spacing:-2px;line-height:1.1;margin-bottom:20px;background:linear-gradient(135deg,var(--ac),var(--acd));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .hero .tagline{font-size:22px;color:var(--t2);margin-bottom:40px}
+        .cta-group{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+        .cta-btn{display:inline-flex;align-items:center;gap:10px;padding:16px 36px;border-radius:14px;font-size:16px;font-weight:700;text-decoration:none;transition:all .3s;border:none;cursor:pointer;font-family:inherit}
+        .cta-primary{background:var(--ac);color:#fff;box-shadow:0 8px 24px var(--acg)}
+        .cta-primary:hover{background:var(--acd);transform:translateY(-2px);box-shadow:0 12px 32px var(--acg)}
+        .cta-secondary{background:var(--card);color:var(--t1);border:2px solid var(--bdl)}
+        .cta-secondary:hover{border-color:var(--ac);color:var(--ac)}
+        section{position:relative;z-index:1;padding:100px 24px}
+        .section-inner{max-width:1100px;margin:0 auto}
+        .section-title{text-align:center;margin-bottom:60px}
+        .section-title h2{font-size:40px;font-weight:800;letter-spacing:-1px;margin-bottom:12px}
+        .section-title p{color:var(--t2);font-size:18px}
+        .features-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:20px}
+        .feature-card{background:var(--card);border:2px solid var(--bdl);border-radius:20px;padding:32px 20px;text-align:center;transition:all .3s;box-shadow:0 4px 16px rgba(255,90,17,.06)}
+        .feature-card:hover{border-color:var(--ac);transform:translateY(-4px);box-shadow:0 12px 32px rgba(255,90,17,.12)}
+        .feature-icon{width:64px;height:64px;border-radius:16px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:28px;background:linear-gradient(135deg,rgba(255,90,17,.12),rgba(255,90,17,.04));border:2px solid rgba(255,90,17,.15)}
+        .feature-card h3{font-size:18px;font-weight:700;margin-bottom:8px}
+        .feature-card p{font-size:13px;color:var(--t2);line-height:1.6}
+        .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+        .step-card{text-align:center;position:relative}
+        .step-num{width:56px;height:56px;border-radius:50%;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;margin:0 auto 20px;box-shadow:0 6px 20px var(--acg)}
+        .step-card h3{font-size:20px;font-weight:700;margin-bottom:8px}
+        .step-card p{font-size:14px;color:var(--t2)}
+        .step-arrow{position:absolute;top:28px;right:-20px;color:var(--ac);font-size:24px;opacity:.4}
+        .engines-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+        .engine-card{background:var(--card);border:2px solid var(--bdl);border-radius:20px;padding:36px 28px;text-align:center;transition:all .3s}
+        .engine-card:hover{border-color:var(--ac);transform:translateY(-3px)}
+        .engine-icon{font-size:40px;margin-bottom:16px}
+        .engine-card h3{font-size:20px;font-weight:700;margin-bottom:8px}
+        .engine-card p{font-size:14px;color:var(--t2);margin-bottom:16px}
+        .privacy-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:var(--ok);font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px}
+        .badge-cloud{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.25);color:#3b82f6}
+        .screenshots-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px}
+        .screenshot-img{width:100%;border-radius:16px;box-shadow:0 8px 24px rgba(255,90,17,.12);transition:all .3s;border:2px solid var(--bdl);cursor:pointer}
+        .screenshot-img:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(255,90,17,.18)}
+        .ss-placeholder{background:linear-gradient(135deg,#FFF5EB,#FFE8D6);border:2px dashed var(--bd);border-radius:16px;aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;color:var(--ac);font-size:16px;font-weight:600}
+        .privacy-section{background:var(--bg2)}
+        .privacy-content{max-width:800px;margin:0 auto}
+        .p-card{background:var(--card);border:2px solid var(--bdl);border-radius:20px;padding:32px;margin-bottom:20px;box-shadow:0 4px 16px rgba(255,90,17,.06)}
+        .p-header{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+        .p-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+        .p-icon.shield{background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(34,197,94,.05));border:2px solid rgba(34,197,94,.25)}
+        .p-icon.key{background:linear-gradient(135deg,rgba(255,90,17,.15),rgba(255,90,17,.05));border:2px solid rgba(255,90,17,.25)}
+        .p-icon.lock{background:linear-gradient(135deg,rgba(239,68,68,.15),rgba(239,68,68,.05));border:2px solid rgba(239,68,68,.25)}
+        .p-icon.mail{background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(59,130,246,.05));border:2px solid rgba(59,130,246,.25)}
+        .p-card h3{font-size:20px;font-weight:600}
+        .p-card p{color:var(--t2);margin-bottom:12px}
+        .p-card p:last-child{margin-bottom:0}
+        .p-card strong{color:var(--t1)}
+        .p-card ul{list-style:none;margin-top:12px}
+        .p-card li{color:var(--t2);padding:10px 0 10px 28px;position:relative;border-bottom:1px solid var(--bdl)}
+        .p-card li:last-child{border-bottom:none}
+        .p-card li::before{content:'\2713';position:absolute;left:0;color:var(--ok);font-weight:bold}
+        .hl-box{background:linear-gradient(135deg,rgba(34,197,94,.1),rgba(34,197,94,.02));border:2px solid rgba(34,197,94,.2);border-radius:12px;padding:16px 20px;margin-top:16px}
+        .hl-box p{color:var(--ok);font-weight:500;margin:0}
+        footer{position:relative;z-index:1;text-align:center;padding:40px 24px;border-top:1px solid var(--bdl)}
+        footer p{color:var(--t2);font-size:14px}
+        footer a{color:var(--ac);text-decoration:none}
+        .footer-links{display:flex;justify-content:center;gap:24px;margin-bottom:12px}
+        .fade-up{opacity:0;transform:translateY(30px);transition:opacity .6s,transform .6s}
+        .fade-up.visible{opacity:1;transform:translateY(0)}
+        @media(max-width:900px){.features-grid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}}
+        @media(max-width:768px){.hero h1{font-size:48px}.hero .tagline{font-size:18px}.steps-grid,.engines-grid{grid-template-columns:1fr}.step-arrow{display:none}.nav-links a.hm{display:none}}
+        @media(max-width:480px){.hero h1{font-size:36px}.cta-btn{padding:14px 24px;font-size:14px}section{padding:60px 16px}}
+        .slideshow-container{position:relative;max-width:900px;margin:0 auto;border-radius:20px;overflow:hidden;box-shadow:0 12px 40px rgba(255,90,17,.15)}
+        .slide{display:none;position:relative}
+        .slide img{width:100%;display:block;border-radius:20px}
+        .slide-prev,.slide-next{cursor:pointer;position:absolute;top:50%;width:auto;margin-top:-30px;padding:16px 20px;color:#fff;font-weight:bold;font-size:24px;transition:.3s;border-radius:0 8px 8px 0;user-select:none;background-color:rgba(255,90,17,.6);z-index:10}
+        .slide-prev:hover,.slide-next:hover{background-color:rgba(255,90,17,.9)}
+        .slide-prev{left:0;border-radius:0 8px 8px 0}
+        .slide-next{right:0;border-radius:8px 0 0 8px}
+        .slide-dots{text-align:center;padding:20px 0}
+        .dot{cursor:pointer;height:15px;width:15px;margin:0 6px;background-color:rgba(255,90,17,.3);border-radius:50%;display:inline-block;transition:background-color .3s}
+        .dot.active,.dot:hover{background-color:var(--ac)}
+        .fade-slide{animation:fade-in .5s}
+        @keyframes fade-in{from{opacity:.6}to{opacity:1}}
+        @media(max-width:768px){.slide-prev,.slide-next{font-size:18px;padding:12px 16px}}
+        .gallery-modal{display:none;position:fixed;z-index:9999;padding-top:60px;left:0;top:0;width:100%;height:100%;overflow:auto;background-color:rgba(0,0,0,.95)}
+        .gallery-modal.active{display:block}
+        .gallery-content{margin:auto;display:block;max-width:90%;max-height:80vh;border-radius:8px;animation:zoom .3s}
+        @keyframes zoom{from{transform:scale(0)}to{transform:scale(1)}}
+        .gallery-close{position:absolute;top:20px;right:40px;color:#fff;font-size:50px;font-weight:bold;transition:.3s;cursor:pointer;z-index:10000}
+        .gallery-close:hover,.gallery-close:focus{color:var(--ac)}
+        .gallery-caption{margin:auto;display:block;width:80%;max-width:700px;text-align:center;color:#ccc;padding:16px 0;font-size:16px}
+        .gallery-prev,.gallery-next{cursor:pointer;position:absolute;top:50%;width:auto;padding:16px;margin-top:-50px;color:#fff;font-weight:bold;font-size:30px;transition:.3s;border-radius:0 4px 4px 0;user-select:none;background-color:rgba(255,90,17,.3)}
+        .gallery-prev:hover,.gallery-next:hover{background-color:rgba(255,90,17,.8)}
+        .gallery-prev{left:0;border-radius:0 4px 4px 0}
+        .gallery-next{right:0;border-radius:4px 0 0 4px}
+        @media(max-width:768px){.gallery-close{top:10px;right:20px;font-size:40px}.gallery-prev,.gallery-next{font-size:24px;padding:12px}}
+    </style>
+</head>
+<body>
+    <nav><div class="nav-inner">
+        <a href="#" class="nav-logo"><img src="public/icons/icon-128.png" alt="Logo"><span data-i18n="logo_name">AI 校对鸭</span></a>
+        <div class="nav-links">
+            <a href="#features" class="hm" data-i18n="nav_features">功能特性</a>
+            <a href="#engines" class="hm" data-i18n="nav_engines">推理引擎</a>
+            <a href="#screenshots" class="hm" data-i18n="nav_screenshots">产品截图</a>
+            <a href="#privacy" class="hm" data-i18n="nav_privacy">隐私政策</a>
+            <div class="lang-switch">
+                <button class="lang-btn" onclick="setLang('en')">EN</button>
+                <button class="lang-btn active" onclick="setLang('zh')">中文</button>
+            </div>
+        </div>
+    </div></nav>
+
+    <div class="hero"><div class="hero-bg"></div><div class="hero-content fade-up">
+        <div class="hero-badge">&#129504; <span data-i18n="hero_badge">浏览器内置 AI &middot; 本地推理</span></div>
+        <h1 data-i18n="hero_title">AI 校对鸭</h1>
+        <p class="tagline" data-i18n="hero_tagline">智能写作助手 &middot; 隐私优先</p>
+        <div class="cta-group">
+            <a href="https://chromewebstore.google.com/detail/gpjneodcglcajciglofbfhafgncgfmcn/" class="cta-btn cta-primary"><span data-i18n="hero_cta">安装到 Chrome</span></a>
+            <a href="https://github.com/gandli/ai-proofduck-extension" target="_blank" class="cta-btn cta-secondary">&#11088; GitHub</a>
+        </div>
+    </div></div>
+
+    <section id="features"><div class="section-inner">
+        <div class="section-title fade-up"><h2 data-i18n="feat_h">五大智能模式</h2><p data-i18n="feat_p">一键搞定写作中的各种需求</p></div>
+        <div class="features-grid">
+            <div class="feature-card fade-up"><div class="feature-icon">&#128221;</div><h3 data-i18n="f1t">摘要</h3><p data-i18n="f1d">智能提取长文核心要点，快速把握文章大意</p></div>
+            <div class="feature-card fade-up"><div class="feature-icon">&#9989;</div><h3 data-i18n="f2t">校对</h3><p data-i18n="f2d">精准识别拼写、语法和标点错误并自动修正</p></div>
+            <div class="feature-card fade-up"><div class="feature-icon">&#10024;</div><h3 data-i18n="f3t">润色</h3><p data-i18n="f3d">优化表达方式，让文字更通顺、更专业</p></div>
+            <div class="feature-card fade-up"><div class="feature-icon">&#127760;</div><h3 data-i18n="f4t">翻译</h3><p data-i18n="f4d">多语言智能翻译，支持中英日韩等主流语言</p></div>
+            <div class="feature-card fade-up"><div class="feature-icon">&#128214;</div><h3 data-i18n="f5t">扩写</h3><p data-i18n="f5d">扩展简短内容，补充细节和论据，丰富表达</p></div>
+        </div>
+    </div></section>
+
+    <section style="background:var(--bg2)"><div class="section-inner">
+        <div class="section-title fade-up"><h2 data-i18n="how_h">简单三步，轻松使用</h2><p data-i18n="how_p">无需复杂配置，开箱即用</p></div>
+        <div class="steps-grid">
+            <div class="step-card fade-up"><div class="step-num">1</div><h3 data-i18n="s1t">选中文本</h3><p data-i18n="s1d">在任何网页上选中需要处理的文本</p><span class="step-arrow">&rarr;</span></div>
+            <div class="step-card fade-up"><div class="step-num">2</div><h3 data-i18n="s2t">选择模式</h3><p data-i18n="s2d">在侧边栏中选择摘要、校对、润色、翻译或扩写</p><span class="step-arrow">&rarr;</span></div>
+            <div class="step-card fade-up"><div class="step-num">3</div><h3 data-i18n="s3t">获取结果</h3><p data-i18n="s3d">AI 即时处理，结果直接显示在侧边栏</p></div>
+        </div>
+    </div></section>
+
+    <section id="engines"><div class="section-inner">
+        <div class="section-title fade-up"><h2 data-i18n="eng_h">三大推理引擎</h2><p data-i18n="eng_p">灵活选择，满足不同场景需求</p></div>
+        <div class="engines-grid">
+            <div class="engine-card fade-up"><div class="engine-icon">&#9889;</div><h3>WebGPU</h3><p data-i18n="e1d">利用 GPU 加速推理，速度最快，完全本地运行</p><span class="privacy-badge">&#128274; <span data-i18n="e_loc">完全本地</span></span></div>
+            <div class="engine-card fade-up"><div class="engine-icon">&#129513;</div><h3>WASM</h3><p data-i18n="e2d">CPU 推理，兼容性最佳，无需 GPU 支持</p><span class="privacy-badge">&#128274; <span data-i18n="e_loc">完全本地</span></span></div>
+            <div class="engine-card fade-up"><div class="engine-icon">&#9729;&#65039;</div><h3>Online API</h3><p data-i18n="e3d">接入 OpenAI 兼容 API，最强大的模型选择</p><span class="privacy-badge badge-cloud">&#127760; <span data-i18n="e_cld">用户可控</span></span></div>
+        </div>
+    </div></section>
+
+    <section id="screenshots" style="background:var(--bg2)"><div class="section-inner">
+        <div class="section-title fade-up"><h2 data-i18n="ss_h">产品截图</h2><p data-i18n="ss_p">简洁优雅的用户界面</p></div>
+        <div class="slideshow-container">
+            <div class="slide fade-slide">
+                <img src="store-assets/screenshot-en-summarize.png" alt="Summarize feature screenshot">
+            </div>
+            <div class="slide fade-slide">
+                <img src="store-assets/screenshot-zh-proofread.png" alt="Proofread feature screenshot">
+            </div>
+            <div class="slide fade-slide">
+                <img src="store-assets/screenshot-zh-settings.png" alt="Settings screenshot">
+            </div>
+            <div class="slide fade-slide">
+                <img src="store-assets/screenshot-zh-translate.png" alt="Translate feature screenshot">
+            </div>
+            <a class="slide-prev" onclick="changeSlide(-1)">&#10094;</a>
+            <a class="slide-next" onclick="changeSlide(1)">&#10095;</a>
+        </div>
+        <div class="slide-dots">
+            <span class="dot" onclick="currentSlide(1)"></span>
+            <span class="dot" onclick="currentSlide(2)"></span>
+            <span class="dot" onclick="currentSlide(3)"></span>
+            <span class="dot" onclick="currentSlide(4)"></span>
+        </div>
+    </div></section>
+
+    <!-- Gallery Modal -->
+    <div id="galleryModal" class="gallery-modal">
+        <span class="gallery-close" onclick="closeGallery()">&times;</span>
+        <img class="gallery-content" id="galleryImg">
+        <div class="gallery-caption" id="galleryCaption"></div>
+        <a class="gallery-prev" onclick="changeImage(-1)">&#10094;</a>
+        <a class="gallery-next" onclick="changeImage(1)">&#10095;</a>
+    </div>
+
+    <section id="privacy" class="privacy-section"><div class="section-inner">
+        <div class="section-title fade-up">
+            <h2 data-i18n="priv_h">隐私政策</h2>
+            <p style="text-align:center;color:var(--t2);margin-bottom:24px" data-i18n="priv_date">最后更新：2026年2月</p>
+        </div>
+        <div class="privacy-content">
+            <div class="p-card fade-up"><div class="p-header"><div class="p-icon shield">&#128737;&#65039;</div><h3 data-i18n="pd1h">数据收集声明</h3></div>
+                <p data-i18n="pd1a">AI 校对鸭承诺：<strong>我们不收集、读取或存储用户的任何个人信息。</strong></p>
+                <p data-i18n="pd1b">我们的扩展旨在提供高质量的校对和写作辅助服务，同时保护用户隐私。所有操作均在您的设备上本地执行，或通过安全的用户配置 API 执行，不会将个人数据发送到我们的服务器。</p>
+                <div class="hl-box"><p>&#10024; <span data-i18n="pd1c">您的数据始终属于您</span></p></div>
+            </div>
+            <div class="p-card fade-up"><div class="p-header"><div class="p-icon key">&#128273;</div><h3 data-i18n="pd2h">API 与模型安全</h3></div>
+                <p data-i18n="pd2a">本扩展使用本地 AI 模型 (WebLLM) 或 Google Gemini API 提供智能文本处理。</p>
+                <ul>
+                    <li data-i18n="pd2l1">您的 API 密钥仅存储在您浏览器的本地存储中</li>
+                    <li data-i18n="pd2l2">API 请求直接从您的设备发送到 Google 服务器 (如使用 Gemini API)</li>
+                    <li data-i18n="pd2l3">我们不收集、传输或存储您的 API 密钥或模型配置</li>
+                    <li data-i18n="pd2l4">您可以随时删除或更改您的 API 密钥或模型设置</li>
+                </ul>
+            </div>
+            <div class="p-card fade-up"><div class="p-header"><div class="p-icon lock">&#128274;</div><h3 data-i18n="pd3h">我们不收集的信息</h3></div>
+                <p data-i18n="pd3a">为了明确表达我们对隐私的承诺，以下是我们<strong>绝不收集</strong>的信息：</p>
+                <ul>
+                    <li data-i18n="pd3l1">您的个人身份信息</li>
+                    <li data-i18n="pd3l2">您的浏览历史或访问的网站</li>
+                    <li data-i18n="pd3l3">您进行校对或重写的文本内容</li>
+                    <li data-i18n="pd3l4">您的 IP 地址或地理位置</li>
+                    <li data-i18n="pd3l5">您的 API 密钥或令牌</li>
+                    <li data-i18n="pd3l6">除通用诊断信息外的任何设备或系统信息</li>
+                </ul>
+            </div>
+            <div class="p-card fade-up"><div class="p-header"><div class="p-icon" style="background:linear-gradient(135deg,rgba(168,85,247,.15),rgba(168,85,247,.05));border:2px solid rgba(168,85,247,.25)">&#128295;</div><h3 data-i18n="pd4h">浏览器权限说明</h3></div>
+                <p data-i18n="pd4a">本扩展需要以下浏览器权限以提供核心功能:</p>
+                <ul>
+                    <li data-i18n="pd4l1"><strong>storage</strong>: 保存您的设置、API 密钥和语言偏好到本地存储</li>
+                    <li data-i18n="pd4l2"><strong>sidePanel</strong>: 在浏览器侧边栏中显示处理结果</li>
+                    <li data-i18n="pd4l3"><strong>activeTab</strong>: 读取您选中的文本内容进行处理</li>
+                    <li data-i18n="pd4l4"><strong>contextMenus</strong>: 在右键菜单中添加快捷操作</li>
+                </ul>
+                <p data-i18n="pd4b">这些权限仅用于扩展的核心功能,不会被用于任何数据收集或跟踪目的。</p>
+            </div>
+            <div class="p-card fade-up"><div class="p-header"><div class="p-icon" style="background:linear-gradient(135deg,rgba(249,115,22,.15),rgba(249,115,22,.05));border:2px solid rgba(249,115,22,.25)">&#9203;</div><h3 data-i18n="pd5h">数据保留与用户权利</h3></div>
+                <p data-i18n="pd5a"><strong>数据保留:</strong></p>
+                <ul>
+                    <li data-i18n="pd5l1">所有数据(设置、API 密钥)仅存储在您的浏览器本地存储中</li>
+                    <li data-i18n="pd5l2">处理的文本内容不会被保存,处理完成后立即从内存中清除</li>
+                    <li data-i18n="pd5l3">卸载扩展时,所有本地数据将被自动删除</li>
+                </ul>
+                <p data-i18n="pd5b"><strong>您的权利:</strong></p>
+                <ul>
+                    <li data-i18n="pd5l4">随时在扩展设置中查看、修改或删除您的配置</li>
+                    <li data-i18n="pd5l5">随时切换推理引擎(本地模型或在线 API)</li>
+                    <li data-i18n="pd5l6">随时卸载扩展,所有数据将被完全清除</li>
+                </ul>
+            </div>
+            <div class="p-card fade-up"><div class="p-header"><div class="p-icon" style="background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(59,130,246,.05));border:2px solid rgba(59,130,246,.25)">&#127760;</div><h3 data-i18n="pd6h">第三方服务</h3></div>
+                <p data-i18n="pd6a">如果您选择使用在线 API 模式,您的文本将被发送到您配置的 API 服务提供商(如 Google Gemini)。请注意:</p>
+                <ul>
+                    <li data-i18n="pd6l1">第三方服务的隐私政策由其服务提供商制定</li>
+                    <li data-i18n="pd6l2">Google Gemini API 隐私政策: <a href="https://policies.google.com/privacy" target="_blank" style="color:var(--ac)">https://policies.google.com/privacy</a></li>
+                    <li data-i18n="pd6l3">我们建议您在使用前仔细阅读相关服务的隐私政策</li>
+                    <li data-i18n="pd6l4">您可以随时切换到完全本地的 WebGPU 或 WASM 模式以避免数据传输</li>
+                </ul>
+            </div>
+            <div class="p-card fade-up"><div class="p-header"><div class="p-icon mail">&#128236;</div><h3 data-i18n="pd7h">联系我们</h3></div>
+                <p data-i18n="pd7a">如果您对本隐私政策有任何疑问或建议，请在我们的 GitHub 仓库中提交 Issue。我们承诺尽快回复您的反馈。</p>
+                <p data-i18n="pd7b"><strong>政策更新:</strong> 我们可能会不定期更新本隐私政策。重大变更将在扩展更新说明中通知用户。</p>
+            </div>
+        </div>
+    </div></section>
+
+    <footer>
+        <div class="footer-links">
+            <a href="https://github.com/gandli/ai-proofduck-extension" target="_blank">GitHub</a>
+            <a href="#privacy" data-i18n="nav_privacy">隐私政策</a>
+        </div>
+        <p>&copy; 2026 Gandli. All rights reserved.</p>
+    </footer>
+
+    <script>
+    // Translations
+    const translations = {
+        en: {
+            nav_features: "Features",
+            nav_engines: "Engines",
+            nav_screenshots: "Screenshots",
+            nav_privacy: "Privacy",
+            logo_name: "AI Proofduck",
+            hero_title: "AI Proofduck",
+            hero_badge: "In-Browser AI · Local Inference",
+            hero_tagline: "Smart Writing Assistant · Privacy First",
+            hero_cta: "Add to Chrome",
+            feat_h: "Five Smart Modes",
+            feat_p: "One click for all your writing needs",
+            f1t: "Summarize",
+            f1d: "Extract key points from long texts instantly",
+            f2t: "Correct",
+            f2d: "Identify and fix spelling, grammar, and punctuation errors",
+            f3t: "Polish",
+            f3d: "Refine expressions for smoother, more professional writing",
+            f4t: "Translate",
+            f4d: "Smart multilingual translation: Chinese, English, Japanese, Korean & more",
+            f5t: "Expand",
+            f5d: "Extend brief content with details and supporting arguments",
+            how_h: "Three Simple Steps",
+            how_p: "No complex setup required",
+            s1t: "Select Text",
+            s1d: "Highlight any text on any webpage",
+            s2t: "Choose Mode",
+            s2d: "Pick Summarize, Correct, Polish, Translate, or Expand in the sidebar",
+            s3t: "Get Results",
+            s3d: "AI processes instantly, results appear in the sidebar",
+            eng_h: "Three Inference Engines",
+            eng_p: "Flexible choices for different scenarios",
+            e1d: "GPU-accelerated inference, fastest speed, fully local",
+            e2d: "CPU inference, best compatibility, no GPU required",
+            e3d: "Connect to OpenAI-compatible APIs for the most powerful models",
+            e_loc: "Fully Local",
+            e_cld: "User Controlled",
+            ss_h: "Product Screenshots",
+            ss_p: "Simple and Elegant User Interface",
+            ss_soon: "Screenshots coming soon",
+            priv_h: "Privacy Policy",
+            priv_date: "Last Updated: February 2026",
+            pd1h: "Data Collection Statement",
+            pd1a: "AI Proofduck promises: <strong>We do not collect, read, or store any personal information.</strong>",
+            pd1b: "Our extension provides high-quality proofreading and writing assistance while protecting your privacy. All operations run locally on your device or via secure, user-configured APIs.",
+            pd1c: "Your data always belongs to you",
+            pd2h: "API & Model Security",
+            pd2a: "This extension uses local AI models (WebLLM) or Google Gemini API for intelligent text processing.",
+            pd2l1: "Your API key is stored only in your browser's local storage",
+            pd2l2: "API requests go directly from your device to Google's servers (if using Gemini API)",
+            pd2l3: "We do not collect, transmit, or store your API key or model configurations",
+            pd2l4: "You can delete or change your API key or model settings at any time",
+            pd3h: "What We Don't Collect",
+            pd3a: "To be clear about our privacy commitment, here is what we <strong>never collect</strong>:",
+            pd3l1: "Your personal identification information",
+            pd3l2: "Your browsing history or websites visited",
+            pd3l3: "The text content you proofread or rewrite",
+            pd3l4: "Your IP address or geographic location",
+            pd3l5: "Your API keys or tokens",
+            pd3l6: "Any device or system information beyond generic diagnostics",
+            pd4h: "Browser Permissions",
+            pd4a: "This extension requires the following browser permissions to provide core functionality:",
+            pd4l1: "<strong>storage</strong>: Save your settings, API keys, and language preferences to local storage",
+            pd4l2: "<strong>sidePanel</strong>: Display processing results in the browser sidebar",
+            pd4l3: "<strong>activeTab</strong>: Read selected text content for processing",
+            pd4l4: "<strong>contextMenus</strong>: Add quick actions to the right-click menu",
+            pd4b: "These permissions are used solely for the extension's core functionality and will not be used for any data collection or tracking purposes.",
+            pd5h: "Data Retention & Your Rights",
+            pd5a: "<strong>Data Retention:</strong>",
+            pd5l1: "All data (settings, API keys) is stored only in your browser's local storage",
+            pd5l2: "Processed text content is not saved and is immediately cleared from memory after processing",
+            pd5l3: "When you uninstall the extension, all local data will be automatically deleted",
+            pd5b: "<strong>Your Rights:</strong>",
+            pd5l4: "View, modify, or delete your configuration at any time in the extension settings",
+            pd5l5: "Switch inference engines (local models or online API) at any time",
+            pd5l6: "Uninstall the extension at any time, all data will be completely cleared",
+            pd6h: "Third-Party Services",
+            pd6a: "If you choose to use online API mode, your text will be sent to your configured API service provider (such as Google Gemini). Please note:",
+            pd6l1: "Third-party service privacy policies are determined by their service providers",
+            pd6l2: "Google Gemini API Privacy Policy: <a href=\"https://policies.google.com/privacy\" target=\"_blank\" style=\"color:var(--ac)\">https://policies.google.com/privacy</a>",
+            pd6l3: "We recommend that you carefully read the privacy policies of relevant services before use",
+            pd6l4: "You can switch to fully local WebGPU or WASM mode at any time to avoid data transmission",
+            pd7h: "Contact Us",
+            pd7a: "If you have questions about this privacy policy, please open an issue on our GitHub repository. We are committed to responding promptly.",
+            pd7b: "<strong>Policy Updates:</strong> We may update this privacy policy periodically. Significant changes will be communicated in extension update notes."
+        },
+        zh: {
+            nav_features: "功能特性",
+            nav_engines: "推理引擎",
+            nav_screenshots: "产品截图",
+            nav_privacy: "隐私政策",
+            logo_name: "AI 校对鸭",
+            hero_title: "AI 校对鸭",
+            hero_badge: "浏览器内置 AI · 本地推理",
+            hero_tagline: "智能写作助手 · 隐私优先",
+            hero_cta: "安装到 Chrome",
+            feat_h: "五种智能模式",
+            feat_p: "一键满足您的所有写作需求",
+            f1t: "内容摘要",
+            f1d: "瞬间提取长文本的核心要点",
+            f2t: "语法纠错",
+            f2d: "识别并修复拼写、语法和标点错误",
+            f3t: "文本润色",
+            f3d: "优化表达组合，使写作更流畅、更专业",
+            f4t: "智能翻译",
+            f4d: "多语言智能翻译：中、英、日、韩等",
+            f5t: "内容扩写",
+            f5d: "详细阐述简短内容，增加细节和论据",
+            how_h: "简单三步",
+            how_p: "无需复杂配置",
+            s1t: "选择文本",
+            s1d: "在网页上选中任何文本",
+            s2t: "选择模式",
+            s2d: "在侧边栏选择摘要、纠错、润色、翻译或扩写",
+            s3t: "获取结果",
+            s3d: "AI 立即处理，结果显示在侧边栏",
+            eng_h: "三大推理引擎",
+            eng_p: "灵活选择，适配不同场景",
+            e1d: "GPU 加速推理，速度最快，完全本地化",
+            e2d: "CPU 推理，兼容性最好，不依赖 GPU",
+            e3d: "连接 OpenAI 兼容 API，使用最强大的云端模型",
+            e_loc: "完全本地",
+            e_cld: "用户控制",
+            ss_h: "产品截图",
+            ss_p: "简洁优雅的用户界面",
+            priv_h: "隐私政策",
+            priv_date: "最后更新：2026年2月",
+            pd1h: "数据收集声明",
+            pd1a: "AI 校对鸭承诺：<strong>我们不收集、不读取、不存储任何个人信息。</strong>",
+            pd1b: "我们的扩展在保护您隐私的同时，提供高质量的校对和写作辅助。所有操作均在您的设备本地运行，或通过您配置的安全 API 进行。",
+            pd1c: "您的数据始终属于您",
+            pd2h: "API 与模型安全",
+            pd2a: "<strong>WebLLM (本地模型):</strong> 完全在浏览器中运行，无需网络连接，数据不离开您的设备。",
+            pd2b: "<strong>Google Gemini API:</strong> 如果您选择使用 Google Gemini API，您的文本将通过加密连接发送到 Google 的服务器进行处理。请查看 <a href='https://ai.google.dev/gemini-api/terms' target='_blank'>Google Gemini API 服务条款</a>。",
+            pd2c: "<strong>API 密钥安全:</strong> 您的 API 密钥仅存储在浏览器的本地存储中，我们无法访问。",
+            pd3h: "浏览器权限说明",
+            pd3a: "<strong>storage:</strong> 用于保存您的设置和 API 密钥（仅本地存储）。",
+            pd3b: "<strong>sidePanel:</strong> 用于显示侧边栏界面。",
+            pd3c: "<strong>activeTab:</strong> 用于读取您选中的文本（仅在您主动选择时）。",
+            pd3d: "<strong>contextMenus:</strong> 用于在右键菜单中添加快捷操作。",
+            pd4h: "数据保留",
+            pd4a: "<strong>本地存储:</strong> 仅保存您的设置和 API 密钥。",
+            pd4b: "<strong>无数据保存:</strong> 我们不保存您处理的任何文本内容。",
+            pd4c: "<strong>自动删除:</strong> 卸载扩展时，所有本地数据将被自动删除。",
+            pd5h: "用户权利",
+            pd5a: "<strong>查看数据:</strong> 您可以随时在扩展设置中查看存储的配置。",
+            pd5b: "<strong>修改数据:</strong> 您可以随时修改或删除您的设置。",
+            pd5c: "<strong>删除数据:</strong> 卸载扩展或清除浏览器数据即可删除所有信息。",
+            pd6h: "第三方服务",
+            pd6a: "如果您选择使用 Google Gemini API，请查看 <a href='https://policies.google.com/privacy' target='_blank'>Google 隐私政策</a>。",
+            pd6b: "我们不与任何第三方共享您的数据。",
+            pd7h: "联系我们",
+            pd7a: "如果您对本隐私政策有任何疑问或建议，请在我们的 GitHub 仓库中提交 Issue。我们承诺尽快回复您的反馈。",
+            pd7b: "<strong>政策更新:</strong> 我们可能会不定期更新本隐私政策。重大变更将在扩展更新说明中通知用户。"
+        }
+    };
+
+    // Initialize language
+    let currentLang = localStorage.getItem('preferredLang') || 'zh';
+    
+    // Set language function
+    function setLang(lang) {
+        currentLang = lang;
+        localStorage.setItem('preferredLang', lang);
+        
+        // Update active button
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        // Update html lang attribute
+        document.documentElement.lang = lang;
+        
+        // Update content
+        if (lang === 'en') {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations.en[key]) {
+                    el.innerHTML = translations.en[key];
+                }
+            });
+            document.title = 'AI Proofduck - Smart Writing Assistant · Privacy First';
+            document.querySelector('meta[name="title"]').content = 'AI Proofduck - Smart Writing Assistant · Privacy First';
+            document.querySelector('meta[name="description"]').content = 'In-browser AI writing assistant with summarize, correct, polish, translate, and expand modes. Fully local inference, privacy protection, ready to use.';
+        } else {
+            // Update to Chinese without reloading
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations.zh[key]) {
+                    el.innerHTML = translations.zh[key];
+                }
+            });
+            document.title = 'AI 校对鸭 - 智能写作助手 · 隐私优先';
+            document.querySelector('meta[name="title"]').content = 'AI 校对鸭 - 智能写作助手 · 隐私优先';
+            document.querySelector('meta[name="description"]').content = '浏览器内置 AI 写作助手，支持摘要、纠错、润色、翻译、扩写五大模式。完全本地推理，隐私保护，开箱即用。';
+        }
+    }
+    
+    // Toggle privacy section
+
+    // Intersection Observer for fade-up animations
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    
+    // Apply saved language on page load
+    if (currentLang === 'en') {
+        document.querySelector('.lang-btn[onclick*="en"]').click();
+    }
+    
+    // Gallery functionality
+    const galleryImages = [
+        { src: 'store-assets/screenshot-en-summarize.png', alt: 'Summarize feature screenshot' },
+        { src: 'store-assets/screenshot-zh-proofread.png', alt: 'Proofread feature screenshot' },
+        { src: 'store-assets/screenshot-zh-settings.png', alt: 'Settings screenshot' },
+        { src: 'store-assets/screenshot-zh-translate.png', alt: 'Translate feature screenshot' }
+    ];
+    let currentImageIndex = 0;
+    
+    function openGallery(index) {
+        currentImageIndex = index;
+        const modal = document.getElementById('galleryModal');
+        const img = document.getElementById('galleryImg');
+        const caption = document.getElementById('galleryCaption');
+        
+        modal.classList.add('active');
+        img.src = galleryImages[index].src;
+        caption.textContent = galleryImages[index].alt;
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeGallery() {
+        const modal = document.getElementById('galleryModal');
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+    
+    function changeImage(direction) {
+        currentImageIndex += direction;
+        if (currentImageIndex >= galleryImages.length) {
+            currentImageIndex = 0;
+        } else if (currentImageIndex < 0) {
+            currentImageIndex = galleryImages.length - 1;
+        }
+        
+        const img = document.getElementById('galleryImg');
+        const caption = document.getElementById('galleryCaption');
+        img.src = galleryImages[currentImageIndex].src;
+        caption.textContent = galleryImages[currentImageIndex].alt;
+    }
+    
+    // Close gallery on click outside image
+    document.getElementById('galleryModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeGallery();
+        }
+    });
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('galleryModal');
+        if (modal.classList.contains('active')) {
+            if (e.key === 'Escape') closeGallery();
+            if (e.key === 'ArrowLeft') changeImage(-1);
+            if (e.key === 'ArrowRight') changeImage(1);
+        }
+    });
+    
+    // Slideshow functionality
+    let slideIndex = 1;
+    let slideTimer;
+    
+    function showSlides(n) {
+        const slides = document.getElementsByClassName('slide');
+        const dots = document.getElementsByClassName('dot');
+        
+        if (n > slides.length) { slideIndex = 1 }
+        if (n < 1) { slideIndex = slides.length }
+        
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = 'none';
+        }
+        for (let i = 0; i < dots.length; i++) {
+            dots[i].className = dots[i].className.replace(' active', '');
+        }
+        
+        if (slides[slideIndex - 1]) {
+            slides[slideIndex - 1].style.display = 'block';
+        }
+        if (dots[slideIndex - 1]) {
+            dots[slideIndex - 1].className += ' active';
+        }
+    }
+    
+    function changeSlide(n) {
+        clearTimeout(slideTimer);
+        showSlides(slideIndex += n);
+        startSlideTimer();
+    }
+    
+    function currentSlide(n) {
+        clearTimeout(slideTimer);
+        showSlides(slideIndex = n);
+        startSlideTimer();
+    }
+    
+    function startSlideTimer() {
+        slideTimer = setTimeout(() => {
+            slideIndex++;
+            showSlides(slideIndex);
+            startSlideTimer();
+        }, 5000); // Auto advance every 5 seconds
+    }
+    
+    // Initialize slideshow
+    if (document.getElementsByClassName('slide').length > 0) {
+        showSlides(slideIndex);
+        startSlideTimer();
+    }
+    </script>
+</body>
+</html>

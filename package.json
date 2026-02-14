@@ -1,0 +1,38 @@
+{
+  "name": "ai-proofduck-extension",
+  "description": "AI proofduck Extension - Intelligent writing assistant for browser",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "postinstall": "wxt prepare"
+  },
+  "dependencies": {
+    "@mlc-ai/web-llm": "^0.2.74",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@testing-library/react": "^16.3.2",
+    "@types/chrome": "^0.1.36",
+    "@types/react": "^19.2.13",
+    "@types/react-dom": "^19.2.3",
+    "@wxt-dev/module-react": "^1.1.5",
+    "happy-dom": "^20.6.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18",
+    "wxt": "^0.20.17"
+  }
+}
