@@ -1,3 +1,4 @@
+import { extractPageContent } from './utils/pageContent';
 import { SVG_STRING } from './assets/floatingIcon';
 
 export default defineContentScript({
@@ -138,9 +139,8 @@ export default defineContentScript({
           sendResponse({ content: selectedText });
         } else {
           // Fallback to body content if no selection
-          // Simple extraction: document.body.innerText
-          // Could be improved later with Readability.js if needed
-          sendResponse({ content: document.body.innerText });
+          const content = extractPageContent(document);
+          sendResponse({ content });
         }
       }
     });
