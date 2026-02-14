@@ -111,7 +111,8 @@ async function handleGenerateOnline(text: string, mode: string, settings: any) {
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error?.message || `API 请求失败: ${response.status}`);
+            console.error("[Worker] API Request Error Details:", errorData);
+            throw new Error(`API 请求失败: ${response.status}`);
         }
 
         const reader = response.body?.getReader();
