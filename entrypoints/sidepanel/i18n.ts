@@ -60,7 +60,8 @@ export const translations: Record<string, any> = {
         copied: '已复制！',
         clear_btn: '清除',
         char_count: '字符',
-        auto_speak_label: '自动朗读结果'
+        auto_speak_label: '自动朗读结果',
+        connection_error: '无法获取网页内容。请确保已在当前页面点击或通过右键菜单激活（由于最小权限限制）。'
     },
     'English': {
         title: 'AI Assistant',
@@ -123,7 +124,8 @@ export const translations: Record<string, any> = {
         copied: 'Copied!',
         clear_btn: 'Clear',
         char_count: 'chars',
-        auto_speak_label: 'Auto Speak Results'
+        auto_speak_label: 'Auto Speak Results',
+        connection_error: 'Could not fetch page content. Please click on the page or use context menu to activate (due to permission restrictions).'
     },
     '日本語': {
         title: 'AIアシスタント',

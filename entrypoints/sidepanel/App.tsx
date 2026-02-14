@@ -127,14 +127,18 @@ function App() {
         // If no text selected, try to get page content
         if (!initialText) {
           if (typeof browser !== 'undefined' && browser.tabs) {
-            const tabs = await browser.tabs.query({ active: true, currentWindow: true });
-            if (tabs.length > 0 && tabs[0].id) {
-              const response = (await browser.tabs.sendMessage(tabs[0].id, {
-                type: 'GET_PAGE_CONTENT',
-              })) as { content?: string };
-              if (response && response.content) {
-                initialText = response.content;
+            try {
+              const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+              if (tabs.length > 0 && tabs[0].id) {
+                const response = (await browser.tabs.sendMessage(tabs[0].id, {
+                  type: 'GET_PAGE_CONTENT',
+                })) as { content?: string };
+                if (response && response.content) {
+                  initialText = response.content;
+                }
               }
+            } catch (e) {
+              console.warn('[App] Initial content fetch failed (likely connection issue):', e);
             }
           }
         }
@@ -195,6 +199,7 @@ function App() {
   };
 
   const handleFetchContent = async () => {
+    setError('');
     try {
       const tabs = await browser.tabs.query({ active: true, currentWindow: true });
       if (tabs.length > 0 && tabs[0].id) {
@@ -213,7 +218,15 @@ function App() {
           });
         }
       }
-    } catch (e) {}
+    } catch (e: any) {
+      console.error('[App] Failed to fetch content:', e);
+      // If it's a connection error, show a more specific hint
+      if (e.message?.includes('Could not establish connection')) {
+        setError(t.connection_error);
+      } else {
+        setError(e.message || t.status_error);
+      }
+    }
   };
 
   const handleClear = () => {
