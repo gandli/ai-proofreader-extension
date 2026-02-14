@@ -19,6 +19,13 @@ describe('processLocalQueue', () => {
     let postMessageSpy: any;
 
     beforeEach(() => {
+        // Mock Date.now to ensure throttle logic works in tests
+        let mockTime = 1000;
+        vi.spyOn(Date, 'now').mockImplementation(() => {
+            mockTime += 60;
+            return mockTime;
+        });
+
         // Mock self.postMessage
         // In happy-dom, self is the window/global object.
         // We need to ensure postMessage exists before spying or just assign a mock if it doesn't.

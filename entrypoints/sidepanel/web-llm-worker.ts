@@ -1,4 +1,4 @@
-import { MLCEngine, InitProgressReport } from "@mlc-ai/web-llm";
+import { MLCEngine, InitProgressReport, prebuiltAppConfig } from "@mlc-ai/web-llm";
 
 export class WebLLMWorker {
     static engine: MLCEngine | null = null;
@@ -28,8 +28,14 @@ export class WebLLMWorker {
             }
 
             console.log(`[Worker] Loading WebLLM model: ${model} on ${engineType}`);
-            // Note: engineType local-wasm can be hinted via appConfig if needed,
-            // but MLCEngine usually auto-detects. Forcing wasm requires special config.
+
+            const appConfig = { ...prebuiltAppConfig };
+            if (engineType === 'local-wasm') {
+                // Hint engineType via appConfig as suggested
+                (appConfig as any).engineType = 'wasm';
+            }
+            this.engine.setAppConfig(appConfig);
+
             await this.engine.reload(model);
         }
 
