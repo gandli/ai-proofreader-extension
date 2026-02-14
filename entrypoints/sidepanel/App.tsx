@@ -440,34 +440,44 @@ function App() {
           </div>
         )}
         <div className="mode-container">
-          <section className="mode-selector">
+          <section className="mode-selector" role="tablist" aria-label={t.mode_selector_label}>
             <button
               className={`mode-btn ${mode === 'summarize' ? 'active' : ''}`}
               onClick={() => setMode('summarize')}
+              role="tab"
+              aria-selected={mode === 'summarize'}
             >
               {t.mode_summarize}
             </button>
             <button
               className={`mode-btn ${mode === 'correct' ? 'active' : ''}`}
               onClick={() => setMode('correct')}
+              role="tab"
+              aria-selected={mode === 'correct'}
             >
               {t.mode_correct}
             </button>
             <button
               className={`mode-btn ${mode === 'proofread' ? 'active' : ''}`}
               onClick={() => setMode('proofread')}
+              role="tab"
+              aria-selected={mode === 'proofread'}
             >
               {t.mode_proofread}
             </button>
             <button
               className={`mode-btn ${mode === 'translate' ? 'active' : ''}`}
               onClick={() => setMode('translate')}
+              role="tab"
+              aria-selected={mode === 'translate'}
             >
               {t.mode_translate}
             </button>
             <button
               className={`mode-btn ${mode === 'expand' ? 'active' : ''}`}
               onClick={() => setMode('expand')}
+              role="tab"
+              aria-selected={mode === 'expand'}
             >
               {t.mode_expand}
             </button>
@@ -478,6 +488,7 @@ function App() {
             onClick={() => {
               setShowSettings(true);
             }}
+            aria-label={t.settings}
           >
             <SettingsIcon />
           </button>
@@ -486,13 +497,19 @@ function App() {
           <div className="section-header">
             <h3>{t.original_text}</h3>
             <div className="header-actions">
-              <button className="fetch-btn" onClick={handleClear} title={t.clear_btn || 'Clear'}>
+              <button
+                className="fetch-btn"
+                onClick={handleClear}
+                title={t.clear_btn || 'Clear'}
+                aria-label={t.clear_btn}
+              >
                 <ClearIcon />
               </button>
               <button
                 className="fetch-btn primary-action-btn"
                 onClick={handleFetchContent}
                 title={t.fetch_page_content || 'Fetch Page Content'}
+                aria-label={t.fetch_page_content}
               >
                 <FetchIcon />
               </button>
@@ -532,6 +549,7 @@ function App() {
                   className="fetch-btn"
                   onClick={handleCopyResult}
                   title={t.copy_btn || 'Copy'}
+                  aria-label={copied ? t.copied : t.copy_btn}
                 >
                   {copied ? (
                     '✓'
@@ -587,7 +605,11 @@ function App() {
           <div className="settings-view">
             <div className="settings-header">
               <h2>{t.settings}</h2>
-              <button className="close-settings-btn" onClick={() => setShowSettings(false)}>
+              <button
+                className="close-settings-btn"
+                onClick={() => setShowSettings(false)}
+                aria-label={t.close_btn}
+              >
                 <CloseIcon />
               </button>
             </div>

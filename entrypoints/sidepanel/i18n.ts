@@ -59,7 +59,10 @@ export const translations: Record<string, any> = {
         copy_btn: '复制',
         copied: '已复制！',
         clear_btn: '清除',
-        char_count: '字符'
+        char_count: '字符',
+        close_btn: '关闭设置',
+        fetch_page_content: '获取页面正文',
+        mode_selector_label: '模式选择'
     },
     'English': {
         title: 'AI Assistant',
@@ -121,7 +124,10 @@ export const translations: Record<string, any> = {
         copy_btn: 'Copy',
         copied: 'Copied!',
         clear_btn: 'Clear',
-        char_count: 'chars'
+        char_count: 'chars',
+        close_btn: 'Close Settings',
+        fetch_page_content: 'Fetch Page Content',
+        mode_selector_label: 'Mode Selection'
     },
     '日本語': {
         title: 'AIアシスタント',
@@ -183,7 +189,10 @@ export const translations: Record<string, any> = {
         copy_btn: 'コピー',
         copied: 'コピーしました！',
         clear_btn: 'クリア',
-        char_count: '文字'
+        char_count: '文字',
+        close_btn: '設定を閉じる',
+        fetch_page_content: 'ページ本文を取得',
+        mode_selector_label: 'モード選択'
     },
     '한국어': {
         title: 'AI 어시스턴트',
@@ -245,7 +254,10 @@ export const translations: Record<string, any> = {
         copy_btn: '복사',
         copied: '복사됨!',
         clear_btn: '지우기',
-        char_count: '자'
+        char_count: '자',
+        close_btn: '설정 닫기',
+        fetch_page_content: '페이지 내용 가져오기',
+        mode_selector_label: '모드 선택'
     },
     'Français': {
         title: 'Assistant IA',
@@ -307,7 +319,10 @@ export const translations: Record<string, any> = {
         copy_btn: 'Copier',
         copied: 'Copié !',
         clear_btn: 'Effacer',
-        char_count: 'carac.'
+        char_count: 'carac.',
+        close_btn: 'Fermer les paramètres',
+        fetch_page_content: 'Récupérer le contenu',
+        mode_selector_label: 'Sélection du mode'
     },
     'Deutsch': {
         title: 'KI-Assistent',
@@ -369,7 +384,10 @@ export const translations: Record<string, any> = {
         copy_btn: 'Kopieren',
         copied: 'Kopiert!',
         clear_btn: 'Löschen',
-        char_count: 'Zeichen'
+        char_count: 'Zeichen',
+        close_btn: 'Einstellungen schließen',
+        fetch_page_content: 'Seiteninhalt abrufen',
+        mode_selector_label: 'Modusauswahl'
     },
     'Español': {
         title: 'Asistente de IA',
@@ -431,6 +449,9 @@ export const translations: Record<string, any> = {
         copy_btn: 'Copiar',
         copied: '¡Copiado!',
         clear_btn: 'Limpiar',
-        char_count: 'carácteres'
+        char_count: 'carácteres',
+        close_btn: 'Cerrar ajustes',
+        fetch_page_content: 'Obtener contenido',
+        mode_selector_label: 'Selección de modo'
     }
 };
