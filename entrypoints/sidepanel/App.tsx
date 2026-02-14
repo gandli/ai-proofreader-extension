@@ -317,8 +317,8 @@ function App() {
       const { apiKey, ...settingsWithoutKey } = updated;
       await browser.storage.local.set({ settings: { ...settingsWithoutKey, apiKey: '' } });
       if (apiKey) {
-        await browser.storage.session.set({ apiKey }).catch(() => {
-          browser.storage.local.set({ settings: updated });
+        await browser.storage.session.set({ apiKey }).catch((e) => {
+          console.warn('Failed to save API key to session storage', e);
         });
       }
     }
