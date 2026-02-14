@@ -188,27 +188,39 @@ function App() {
     const runtimeListener = (message: any, sender: any, sendResponse: (res?: any) => void) => {
       if (message.type === 'QUICK_TRANSLATE') {
         const text = message.text;
-        // Trigger translation silently in background
         const currentSettings = settingsRef.current;
+        console.log('[App] Received QUICK_TRANSLATE request.');
+
+        if (!worker.current) {
+          console.warn('[App] Worker not initialized for QUICK_TRANSLATE');
+          sendResponse({ translatedText: 'Engine not ready. Please wait a moment.' });
+          return;
+        }
         
-        // We need a way to return the result via sendResponse.
-        // Since worker is async, we set up a one-time response listener.
+        // Timeout for safety
+        const timeoutId = setTimeout(() => {
+          console.warn('[App] QUICK_TRANSLATE timed out.');
+          sendResponse({ translatedText: 'Translation timed out. Please try again.' });
+          worker.current?.removeEventListener('message', handleTranslateResponse);
+        }, 15000);
+
         const handleTranslateResponse = (event: MessageEvent<WorkerMessage>) => {
           const { type, text: resultText, mode: resultMode } = event.data;
           if ((type === 'complete' || type === 'error') && resultMode === 'translate') {
-            sendResponse({ translatedText: resultText || 'Error' });
+            clearTimeout(timeoutId);
+            sendResponse({ translatedText: resultText || 'Translation failed.' });
             worker.current?.removeEventListener('message', handleTranslateResponse);
           }
         };
 
-        worker.current?.addEventListener('message', handleTranslateResponse);
-        worker.current?.postMessage({
+        worker.current.addEventListener('message', handleTranslateResponse);
+        worker.current.postMessage({
           type: 'generate',
           text,
           mode: 'translate',
           settings: currentSettings,
         });
-        return true; // Keep message channel open for async response
+        return true; 
       }
     };
     browser.runtime.onMessage.addListener(runtimeListener);
