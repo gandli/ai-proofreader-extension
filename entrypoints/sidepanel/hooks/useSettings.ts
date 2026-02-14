@@ -71,8 +71,11 @@ export function useSettings() {
       }
     }
 
-    if (updated.engine === 'online') {
+    if (updated.engine === 'online' || updated.engine === 'chrome-ai') {
       setStatus('ready');
+      if (updated.engine === 'chrome-ai') {
+        workerPostMessage?.({ type: 'load', settings: updated });
+      }
     } else if (engineChanged || modelChanged || statusRef.current === 'idle' || statusRef.current === 'error') {
       setStatus('loading');
       workerPostMessage?.({ type: 'load', settings: updated });

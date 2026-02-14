@@ -20,7 +20,7 @@ export interface Settings {
 
 /** Default settings factory */
 export const DEFAULT_SETTINGS: Settings = {
-  engine: 'local-gpu',
+  engine: 'chrome-ai',
   extensionLanguage: '中文',
   tone: 'professional',
   detailLevel: 'standard',

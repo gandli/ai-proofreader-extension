@@ -1,6 +1,19 @@
 import { MLCEngine, InitProgressReport, ChatCompletionMessageParam } from "@mlc-ai/web-llm";
 import { getSystemPrompt } from "./worker-utils";
 import type { Settings, ModeKey, WorkerInboundMessage } from "./types";
+import { detectChromeAI, isChromeAIAvailable, processWithChromeAI, type ChromeAIStatus } from "./engines/chrome-ai";
+
+// ---- Chrome AI status cache ----
+let chromeAIStatus: ChromeAIStatus | null = null;
+
+async function getChromeAIStatus(): Promise<ChromeAIStatus> {
+    if (!chromeAIStatus) {
+        chromeAIStatus = await detectChromeAI();
+    }
+    return chromeAIStatus;
+}
+
+// ---- WebLLM Engine ----
 
 class WebLLMWorker {
     static engine: MLCEngine | null = null;
@@ -134,10 +147,49 @@ async function handleGenerateOnline(text: string, mode: ModeKey, settings: Setti
     }
 }
 
+/** Handle generation using Chrome Built-in AI */
+async function handleGenerateChromeAI(text: string, mode: ModeKey, settings: Settings, requestId?: string) {
+    try {
+        await processWithChromeAI(text, mode, settings, {
+            onUpdate: (result) => {
+                self.postMessage({ type: "update", text: result, mode, requestId });
+            },
+            onComplete: (result) => {
+                self.postMessage({ type: "complete", text: result, mode, requestId });
+            },
+            onError: (error) => {
+                self.postMessage({ type: "error", error, mode, requestId });
+            },
+        });
+    } catch (error: unknown) {
+        const errMsg = error instanceof Error ? error.message : String(error);
+        self.postMessage({ type: "error", error: errMsg, mode, requestId });
+    }
+}
+
 self.onmessage = async (event: MessageEvent<WorkerInboundMessage>) => {
     const msg = event.data;
 
     if (msg.type === "load") {
+        // For chrome-ai engine, detect availability and report ready immediately
+        if (msg.settings.engine === 'chrome-ai') {
+            try {
+                chromeAIStatus = await detectChromeAI();
+                self.postMessage({ type: "ready" });
+            } catch (error: unknown) {
+                const errMsg = error instanceof Error ? error.message : String(error);
+                self.postMessage({ type: "error", error: errMsg });
+            }
+            return;
+        }
+
+        // For online engine, no loading needed
+        if (msg.settings.engine === 'online') {
+            self.postMessage({ type: "ready" });
+            return;
+        }
+
+        // For local engines, load WebLLM
         try {
             await WebLLMWorker.getEngine(msg.settings, (progress) => {
                 self.postMessage({
@@ -151,7 +203,23 @@ self.onmessage = async (event: MessageEvent<WorkerInboundMessage>) => {
             self.postMessage({ type: "error", error: errMsg });
         }
     } else if (msg.type === "generate") {
-        if (msg.settings.engine === 'online') {
+        if (msg.settings.engine === 'chrome-ai') {
+            // Use Chrome AI, with fallback to online if mode not available
+            const status = await getChromeAIStatus();
+            if (isChromeAIAvailable(status, msg.mode)) {
+                handleGenerateChromeAI(msg.text, msg.mode, msg.settings, msg.requestId);
+            } else if (msg.settings.apiKey) {
+                // Fallback to online API for unavailable modes
+                handleGenerateOnline(msg.text, msg.mode, msg.settings, msg.requestId);
+            } else {
+                self.postMessage({
+                    type: "error",
+                    error: `Chrome AI 不支持${msg.mode}模式，且未配置在线API作为后备`,
+                    mode: msg.mode,
+                    requestId: msg.requestId,
+                });
+            }
+        } else if (msg.settings.engine === 'online') {
             handleGenerateOnline(msg.text, msg.mode, msg.settings, msg.requestId);
         } else {
             localRequestQueue.push({ text: msg.text, mode: msg.mode, settings: msg.settings, requestId: msg.requestId });

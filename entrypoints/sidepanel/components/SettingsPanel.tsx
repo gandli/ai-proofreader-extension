@@ -1,6 +1,8 @@
-import { Settings } from '../types';
+import { useState, useEffect } from 'react';
+import { Settings, ModeKey } from '../types';
 import { CloseIcon } from './Icons';
 import { ModelImportExport } from './ModelImportExport';
+import { detectChromeAI, type ChromeAIStatus, type ChromeAICapability, MODE_API_MAP } from '../engines/chrome-ai';
 
 interface SettingsPanelProps {
   settings: Settings;
@@ -18,6 +20,20 @@ const inputClass = selectClass;
 const labelClass = "text-[11px] text-slate-500 font-semibold uppercase dark:text-slate-400";
 
 export function SettingsPanel({ settings, updateSettings, onClose, status, setStatus, setProgress, setError, t }: SettingsPanelProps) {
+  const [chromeAIStatus, setChromeAIStatus] = useState<ChromeAIStatus | null>(null);
+
+  useEffect(() => {
+    detectChromeAI().then(setChromeAIStatus).catch(() => {});
+  }, []);
+
+  const statusIcon = (cap: ChromeAICapability) => {
+    switch (cap) {
+      case 'available': return '✅';
+      case 'experimental': return '🧪';
+      default: return '❌';
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[1000] flex items-end justify-center bg-black/40 backdrop-blur-[4px]">
       <div className="flex flex-col gap-4 w-full p-6 pb-4 bg-[#fbfbfb] rounded-t-[20px] max-h-[90vh] overflow-y-auto shadow-[-10px_25px_rgba(0,0,0,0.1)] animate-[slideUp_0.3s_cubic-bezier(0.16,1,0.3,1)] dark:bg-brand-dark-bg dark:shadow-[-10px_25px_rgba(0,0,0,0.3)]">
@@ -46,11 +62,23 @@ export function SettingsPanel({ settings, updateSettings, onClose, status, setSt
           <div className="flex flex-col gap-1.5">
             <label className={labelClass}>{t.engine_label}</label>
             <select className={selectClass} value={settings.engine} onChange={e => updateSettings({ engine: e.target.value })}>
+              <option value="chrome-ai">{t.engine_chrome_ai || 'Chrome Built-in AI (推荐)'}</option>
               <option value="local-gpu">{t.engine_webgpu}</option>
               <option value="local-wasm">{t.engine_wasm}</option>
               <option value="online">{t.engine_online}</option>
             </select>
           </div>
+          {settings.engine === 'chrome-ai' && chromeAIStatus && (
+            <div className="flex flex-col gap-1 p-3 bg-slate-50 rounded-lg text-xs dark:bg-brand-dark-bg">
+              <span className="font-semibold text-slate-600 dark:text-slate-300 mb-1">{t.chrome_ai_status || 'API 可用状态'}</span>
+              {(['summarize', 'correct', 'proofread', 'translate', 'expand'] as ModeKey[]).map(mode => (
+                <div key={mode} className="flex items-center gap-1.5">
+                  <span>{statusIcon(chromeAIStatus[mode])}</span>
+                  <span className="text-slate-500 dark:text-slate-400">{t[`mode_${mode}`]} — {MODE_API_MAP[mode]}</span>
+                </div>
+              ))}
+            </div>
+          )}
           {(settings.engine === 'local-gpu' || settings.engine === 'local-wasm') && (
             <div className="flex flex-col gap-1.5">
               <label className={labelClass}>{t.model_label}</label>
