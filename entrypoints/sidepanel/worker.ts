@@ -55,7 +55,7 @@ async function processLocalQueue() {
             console.log(`[Worker] Processing queued local task: ${currentMode}`);
 
             const systemPrompt = getSystemPrompt(currentMode, settings);
-            const userContent = `【待处理文本】：\n${text}`;
+            const userContent = `【待处理文本】：\n<user_input>\n${text.replace(/<\/user_input>/g, "<\\/user_input>")}\n</user_input>`;
 
             const engine = await WebLLMWorker.getEngine(settings);
             const messages: ChatCompletionMessageParam[] = [
@@ -89,7 +89,7 @@ async function handleGenerateOnline(text: string, mode: string, settings: any) {
     const currentMode = mode || "proofread";
     try {
         const systemPrompt = getSystemPrompt(currentMode, settings);
-        const userContent = `【待处理文本】：\n${text}`;
+        const userContent = `【待处理文本】：\n<user_input>\n${text.replace(/<\/user_input>/g, "<\\/user_input>")}\n</user_input>`;
 
         if (!settings.apiKey) throw new Error("请在设置中配置 API Key");
 

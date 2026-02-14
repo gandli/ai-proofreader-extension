@@ -1,4 +1,4 @@
-import { TONE_MAP, DETAIL_MAP, BASE_CONSTRAINT, SUFFIX_CONSTRAINT, PROMPTS } from './prompts';
+import { TONE_MAP, DETAIL_MAP, BASE_CONSTRAINT, SUFFIX_CONSTRAINT, SECURITY_CONSTRAINT, PROMPTS } from './prompts';
 
 export function getSystemPrompt(mode: string, settings: any) {
     const targetLang = settings?.extensionLanguage || "中文";
@@ -14,5 +14,5 @@ export function getSystemPrompt(mode: string, settings: any) {
     promptTemplate = promptTemplate.replace("{tone}", selectedTone);
     promptTemplate = promptTemplate.replace("{detail}", selectedDetail);
 
-    return `${promptTemplate}${BASE_CONSTRAINT}${resultCommand}${SUFFIX_CONSTRAINT}`;
+    return `${promptTemplate}${BASE_CONSTRAINT}${resultCommand}${SUFFIX_CONSTRAINT}${SECURITY_CONSTRAINT}`;
 }
