@@ -132,7 +132,7 @@ export function useWorker(opts: UseWorkerOptions) {
           if (d.type === 'complete') {
             sendResponse({ translatedText: d.text || 'Translation failed.' });
           } else {
-            sendResponse({ translatedText: 'Translation failed.' });
+            sendResponse({ error: d.error || 'Translation failed.' });
           }
           worker.current?.removeEventListener('message', handler);
         }

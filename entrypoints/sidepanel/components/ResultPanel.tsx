@@ -23,6 +23,9 @@ export function ResultPanel({
     navigator.clipboard.writeText(result).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }).catch((err) => {
+      console.error('Clipboard write failed:', err);
+      setCopied(false);
     });
   }, [result]);
 

@@ -95,7 +95,7 @@ function App() {
         {status === 'loading' ? (
           <button className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-brand-orange border-none rounded-xl cursor-pointer shadow-md shadow-brand-orange/20 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed disabled:shadow-none dark:disabled:bg-slate-700 dark:disabled:text-slate-500" disabled>{progress.text || `${t.status_loading} ${Math.round(progress.progress)}%`}</button>
         ) : status === 'error' ? (
-          <button className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-[#e53e3e] border-none rounded-xl cursor-pointer" onClick={() => setStatus('idle')}>{t.status_error} (Click to Reset)</button>
+          <button className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-[#e53e3e] border-none rounded-xl cursor-pointer" onClick={() => setStatus('idle')}>{t.status_error} ({t.click_to_reset})</button>
         ) : status === 'idle' && (settings.engine === 'local-gpu' || settings.engine === 'local-wasm') ? (
           <button className="w-full py-2.5 px-4 text-sm font-semibold text-white bg-brand-orange border-none rounded-xl cursor-pointer shadow-md shadow-brand-orange/20 transition-all hover:bg-brand-orange-dark hover:shadow-lg active:scale-[0.98]" onClick={() => { setStatus('loading'); setError(''); postMessage({ type: 'load', settings }); }}>{t.action_btn_load} ({settings.engine === 'local-gpu' ? 'WebGPU' : 'WASM'})</button>
         ) : (

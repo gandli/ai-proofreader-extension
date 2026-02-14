@@ -501,7 +501,7 @@ export default defineContentScript({
         if (newStatus === 'ready' && selectedText) {
           const shadowRootNode = translationPopup.shadowRoot!;
           const statusLabel = shadowRootNode.getElementById('status-label');
-          if (statusLabel && statusLabel.textContent === 'ACTION_REQUIRED') {
+          if (statusLabel && statusLabel.textContent === 'ACTION REQUIRED') {
             console.log('[AI Proofduck] Engine ready, retrying translation automatically...');
             showTranslation(selectedText, lastRect || new DOMRect());
           }

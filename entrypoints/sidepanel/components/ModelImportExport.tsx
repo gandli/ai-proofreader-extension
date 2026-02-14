@@ -40,6 +40,7 @@ export function ModelImportExport({ settings, status, setStatus, setProgress, se
   };
 
   const handleExportModel = async () => {
+    const prevStatus = status;
     setStatus('loading');
     setProgress({ progress: 0, text: t.exporting });
     try {
@@ -56,17 +57,18 @@ export function ModelImportExport({ settings, status, setStatus, setProgress, se
         setProgress({ progress: ((i + 1) / filteredKeys.length) * 50, text: `${t.exporting} (${i + 1}/${filteredKeys.length})` });
       }
 
+      const encoder = new TextEncoder();
+      const encodedUrls = filesData.map(f => encoder.encode(f.url));
       let totalSize = 8;
-      for (const f of filesData) totalSize += 4 + f.url.length + 8 + f.blob.size;
+      for (let i = 0; i < filesData.length; i++) totalSize += 4 + encodedUrls[i].length + 8 + filesData[i].blob.size;
       const buffer = new ArrayBuffer(totalSize);
       const view = new DataView(buffer);
-      const encoder = new TextEncoder();
       view.setUint32(0, 0x4d4c4350);
       view.setUint32(4, filesData.length);
       let offset = 8;
       for (let i = 0; i < filesData.length; i++) {
         const f = filesData[i];
-        const urlBytes = encoder.encode(f.url);
+        const urlBytes = encodedUrls[i];
         view.setUint32(offset, urlBytes.length);
         new Uint8Array(buffer, offset + 4, urlBytes.length).set(urlBytes);
         offset += 4 + urlBytes.length;
@@ -88,7 +90,7 @@ export function ModelImportExport({ settings, status, setStatus, setProgress, se
     } catch (err: unknown) {
       console.error('Export failed:', err);
       alert(t.export_failed);
-      setStatus('ready');
+      setStatus(prevStatus as 'idle' | 'loading' | 'ready' | 'error');
     }
   };
 
