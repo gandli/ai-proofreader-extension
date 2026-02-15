@@ -74,10 +74,18 @@ async function processLocalQueue() {
             });
 
             let fullText = "";
+            let lastUpdateTime = 0;
+            const THROTTLE_INTERVAL = 50;
+
             for await (const chunk of chunks) {
                 const content = chunk.choices[0]?.delta?.content || "";
                 fullText += content;
-                self.postMessage({ type: "update", text: fullText, mode: currentMode });
+
+                const now = Date.now();
+                if (now - lastUpdateTime >= THROTTLE_INTERVAL) {
+                    self.postMessage({ type: "update", text: fullText, mode: currentMode });
+                    lastUpdateTime = now;
+                }
             }
             console.log(`[Worker] Local Gen Complete. Mode: ${currentMode}`);
             self.postMessage({ type: "complete", text: fullText, mode: currentMode });
