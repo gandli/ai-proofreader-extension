@@ -10,7 +10,8 @@ describe('getSystemPrompt', () => {
 
     it('should generate correct prompt for summarize mode', () => {
         const prompt = getSystemPrompt('summarize', defaultSettings);
-        expect(prompt).toContain('你是一个摘要提取工具');
+        // Updated expectation based on prompts.ts
+        expect(prompt).toContain('你是一个专业的首席速读官');
         expect(prompt).toContain('直接且仅输出 中文 结果文本');
     });
 
@@ -23,17 +24,20 @@ describe('getSystemPrompt', () => {
     it('should respect tone', () => {
         const settings = { ...defaultSettings, tone: 'casual' };
         const prompt = getSystemPrompt('proofread', settings);
+        // casual -> "轻松且口语化"
         expect(prompt).toContain('轻松且口语化');
     });
 
     it('should respect detail level', () => {
         const settings = { ...defaultSettings, detailLevel: 'creative' };
         const prompt = getSystemPrompt('expand', settings);
+        // creative -> "充满创意与文学性"
         expect(prompt).toContain('充满创意与文学性');
     });
 
     it('should fallback to proofread if mode is unknown', () => {
         const prompt = getSystemPrompt('unknown_mode', defaultSettings);
-        expect(prompt).toContain('你是一个文字润色编辑');
+        // proofread -> "你是一个大厂资深文案编辑"
+        expect(prompt).toContain('你是一个大厂资深文案编辑');
     });
 });

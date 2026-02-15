@@ -74,10 +74,18 @@ async function processLocalQueue() {
             });
 
             let fullText = "";
+            let lastUpdate = 0;
+            const UPDATE_INTERVAL = 50; // Throttle updates to every 50ms
+
             for await (const chunk of chunks) {
                 const content = chunk.choices[0]?.delta?.content || "";
                 fullText += content;
-                self.postMessage({ type: "update", text: fullText, mode: currentMode });
+
+                const now = Date.now();
+                if (now - lastUpdate > UPDATE_INTERVAL) {
+                    self.postMessage({ type: "update", text: fullText, mode: currentMode });
+                    lastUpdate = now;
+                }
             }
             console.log(`[Worker] Local Gen Complete. Mode: ${currentMode}`);
             self.postMessage({ type: "complete", text: fullText, mode: currentMode });
