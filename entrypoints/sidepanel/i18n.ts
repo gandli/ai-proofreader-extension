@@ -1,4 +1,80 @@
-export const translations: Record<string, any> = {
+export interface TranslationKeys {
+  title: string;
+  status_idle: string;
+  status_loading: string;
+  status_ready_local: string;
+  status_ready_online: string;
+  status_generating: string;
+  status_error: string;
+  settings: string;
+  mode_summarize: string;
+  mode_correct: string;
+  mode_proofread: string;
+  mode_translate: string;
+  mode_expand: string;
+  original_text: string;
+  placeholder: string;
+  result_summarize: string;
+  result_correct: string;
+  result_proofread: string;
+  result_translate: string;
+  result_expand: string;
+  thinking: string;
+  core_settings: string;
+  engine_label: string;
+  lang_label: string;
+  model_label: string;
+  api_config: string;
+  func_pref: string;
+  tone_label: string;
+  detail_label: string;
+  save_btn: string;
+  wasm_warning: string;
+  loading_tip: string;
+  tone_professional: string;
+  tone_casual: string;
+  tone_academic: string;
+  tone_concise: string;
+  detail_standard: string;
+  detail_detailed: string;
+  detail_creative: string;
+  engine_webgpu: string;
+  engine_wasm: string;
+  engine_chrome_ai: string;
+  chrome_ai_status: string;
+  status_ready_chrome_ai: string;
+  engine_online: string;
+  action_btn_load: string;
+  action_btn_execute: string;
+  action_generating: string;
+  offline_import_title: string;
+  offline_import_btn: string;
+  offline_import_tip: string;
+  importing: string;
+  import_success: string;
+  import_failed: string;
+  export_btn: string;
+  import_pkg_btn: string;
+  exporting: string;
+  export_success: string;
+  export_failed: string;
+  copy_btn: string;
+  copied: string;
+  clear_btn: string;
+  char_count: string;
+  auto_speak_label: string;
+  connection_error: string;
+  no_errors_found: string;
+  correction_details: string;
+  proofread_context: string;
+  expand_prompt: string;
+  chrome_ai_unsupported_no_fallback: string;
+  url_must_be_http: string;
+  invalid_url: string;
+  [key: string]: string;
+}
+
+export const translations: Record<string, TranslationKeys> = {
     '中文': {
         title: 'AI 助手',
         status_idle: '未就绪',
@@ -41,6 +117,9 @@ export const translations: Record<string, any> = {
         detail_creative: '充满创意与文学性',
         engine_webgpu: '本地 WebGPU (加速推荐)',
         engine_wasm: '本地 WASM (低功耗/兼容)',
+        engine_chrome_ai: 'Chrome 内置 AI (推荐)',
+        chrome_ai_status: 'API 可用状态',
+        status_ready_chrome_ai: 'Chrome AI 就绪',
         engine_online: '在线 API (OpenAI 兼容)',
         action_btn_load: '开启本地模型',
         action_btn_execute: '执行',
@@ -61,7 +140,14 @@ export const translations: Record<string, any> = {
         clear_btn: '清除',
         char_count: '字符',
         auto_speak_label: '自动朗读结果',
-        connection_error: '无法获取网页内容。请确保已在当前页面点击或通过右键菜单激活（由于最小权限限制）。'
+        connection_error: '无法获取网页内容。请确保已在当前页面点击或通过右键菜单激活（由于最小权限限制）。',
+        no_errors_found: '✅ 未发现错误，文本无需修正。',
+        correction_details: '📝 修正详情：',
+        proofread_context: '润色这段文本，使其更加流畅专业。目标语言：',
+        expand_prompt: '基于以下文本进行扩写，增加细节和深度，目标语言',
+        chrome_ai_unsupported_no_fallback: 'Chrome AI 不支持该模式，且未配置在线API作为后备',
+        url_must_be_http: 'URL 必须以 http:// 或 https:// 开头',
+        invalid_url: 'URL 格式无效',
     },
     'English': {
         title: 'AI Assistant',
@@ -105,6 +191,9 @@ export const translations: Record<string, any> = {
         detail_creative: 'Creative',
         engine_webgpu: 'Local WebGPU (Fast)',
         engine_wasm: 'Local WASM (Compatible)',
+        engine_chrome_ai: 'Chrome Built-in AI (Recommended)',
+        chrome_ai_status: 'API Availability',
+        status_ready_chrome_ai: 'Chrome AI Ready',
         engine_online: 'Online API (OpenAI)',
         action_btn_load: 'Enable Local Model',
         action_btn_execute: 'Execute',
@@ -125,7 +214,14 @@ export const translations: Record<string, any> = {
         clear_btn: 'Clear',
         char_count: 'chars',
         auto_speak_label: 'Auto Speak Results',
-        connection_error: 'Could not fetch page content. Please click on the page or use context menu to activate (due to permission restrictions).'
+        connection_error: 'Could not fetch page content. Please click on the page or use context menu to activate (due to permission restrictions).',
+        no_errors_found: '✅ No errors found, text needs no correction.',
+        correction_details: '📝 Correction details:',
+        proofread_context: 'Polish this text to make it more fluent and professional. Target language: ',
+        expand_prompt: 'Expand the following text with more details and depth, target language ',
+        chrome_ai_unsupported_no_fallback: 'Chrome AI does not support this mode and no online API is configured as fallback',
+        url_must_be_http: 'URL must start with http:// or https://',
+        invalid_url: 'Invalid URL format',
     },
     '日本語': {
         title: 'AIアシスタント',
@@ -169,6 +265,9 @@ export const translations: Record<string, any> = {
         detail_creative: 'クリエイティブ',
         engine_webgpu: 'ローカル WebGPU (推奨)',
         engine_wasm: 'ローカル WASM (低電力)',
+        engine_chrome_ai: 'Chrome 内蔵 AI (推奨)',
+        chrome_ai_status: 'API 利用可能状態',
+        status_ready_chrome_ai: 'Chrome AI 準備完了',
         engine_online: 'オンライン API',
         action_btn_load: 'ローカルモデルを有効化',
         action_btn_execute: '実行',
@@ -188,7 +287,15 @@ export const translations: Record<string, any> = {
         copied: 'コピーしました！',
         clear_btn: 'クリア',
         char_count: '文字',
-        auto_speak_label: '結果を自動的に読み上げる'
+        auto_speak_label: '結果を自動的に読み上げる',
+        connection_error: 'ページのコンテンツを取得できませんでした。現在のページをクリックするか、コンテキストメニューから有効化してください。',
+        no_errors_found: '✅ エラーは見つかりませんでした。テキストは修正不要です。',
+        correction_details: '📝 修正詳細：',
+        proofread_context: 'このテキストをより流暢でプロフェッショナルにしてください。対象言語：',
+        expand_prompt: '以下のテキストを詳細と深みを加えて拡張してください。対象言語',
+        chrome_ai_unsupported_no_fallback: 'Chrome AIはこのモードをサポートしておらず、オンラインAPIもフォールバックとして設定されていません',
+        url_must_be_http: 'URLはhttp://またはhttps://で始まる必要があります',
+        invalid_url: 'URL形式が無効です',
     },
     '한국어': {
         title: 'AI 어시스턴트',
@@ -232,6 +339,9 @@ export const translations: Record<string, any> = {
         detail_creative: '창의적',
         engine_webgpu: '로컬 WebGPU (권장)',
         engine_wasm: '로컬 WASM (호환성)',
+        engine_chrome_ai: 'Chrome 내장 AI (권장)',
+        chrome_ai_status: 'API 가용성',
+        status_ready_chrome_ai: 'Chrome AI 준비 완료',
         engine_online: '온라인 API',
         action_btn_load: '로컬 모델 활성화',
         action_btn_execute: '실행',
@@ -251,7 +361,15 @@ export const translations: Record<string, any> = {
         copied: '복사됨!',
         clear_btn: '지우기',
         char_count: '자',
-        auto_speak_label: '결과 자동 읽기'
+        auto_speak_label: '결과 자동 읽기',
+        connection_error: '페이지 콘텐츠를 가져올 수 없습니다. 현재 페이지를 클릭하거나 컨텍스트 메뉴를 통해 활성화하세요.',
+        no_errors_found: '✅ 오류가 발견되지 않았습니다. 텍스트 수정이 필요하지 않습니다.',
+        correction_details: '📝 수정 상세:',
+        proofread_context: '이 텍스트를 더 유창하고 전문적으로 다듬어 주세요. 대상 언어: ',
+        expand_prompt: '다음 텍스트를 더 자세하고 깊이 있게 확장해 주세요. 대상 언어 ',
+        chrome_ai_unsupported_no_fallback: 'Chrome AI가 이 모드를 지원하지 않으며 온라인 API가 대체로 구성되지 않았습니다',
+        url_must_be_http: 'URL은 http:// 또는 https://로 시작해야 합니다',
+        invalid_url: 'URL 형식이 잘못되었습니다',
     },
     'Français': {
         title: 'Assistant IA',
@@ -295,6 +413,9 @@ export const translations: Record<string, any> = {
         detail_creative: 'Créatif',
         engine_webgpu: 'WebGPU local (Rapide)',
         engine_wasm: 'WASM local (Compatible)',
+        engine_chrome_ai: 'Chrome IA intégrée (Recommandé)',
+        chrome_ai_status: 'Disponibilité des API',
+        status_ready_chrome_ai: 'Chrome AI Prêt',
         engine_online: 'API en ligne',
         action_btn_load: 'Activer le modèle local',
         action_btn_execute: 'Exécuter',
@@ -314,7 +435,15 @@ export const translations: Record<string, any> = {
         copied: 'Copié !',
         clear_btn: 'Effacer',
         char_count: 'carac.',
-        auto_speak_label: 'Lecture automatique des résultats'
+        auto_speak_label: 'Lecture automatique des résultats',
+        connection_error: 'Impossible de récupérer le contenu de la page. Veuillez cliquer sur la page ou utiliser le menu contextuel pour activer.',
+        no_errors_found: '✅ Aucune erreur trouvée, le texte n\'a pas besoin de correction.',
+        correction_details: '📝 Détails des corrections :',
+        proofread_context: 'Peaufinez ce texte pour le rendre plus fluide et professionnel. Langue cible : ',
+        expand_prompt: 'Développez le texte suivant avec plus de détails et de profondeur, langue cible ',
+        chrome_ai_unsupported_no_fallback: 'Chrome AI ne prend pas en charge ce mode et aucune API en ligne n\'est configurée en secours',
+        url_must_be_http: 'L\'URL doit commencer par http:// ou https://',
+        invalid_url: 'Format d\'URL invalide',
     },
     'Deutsch': {
         title: 'KI-Assistent',
@@ -358,6 +487,9 @@ export const translations: Record<string, any> = {
         detail_creative: 'Kreativ',
         engine_webgpu: 'Lokales WebGPU (Schnell)',
         engine_wasm: 'Lokales WASM (Kompatibel)',
+        engine_chrome_ai: 'Chrome Integrierte KI (Empfohlen)',
+        chrome_ai_status: 'API-Verfügbarkeit',
+        status_ready_chrome_ai: 'Chrome AI Bereit',
         engine_online: 'Online-API',
         action_btn_load: 'Lokales Modell aktivieren',
         action_btn_execute: 'Ausführen',
@@ -377,7 +509,15 @@ export const translations: Record<string, any> = {
         copied: 'Kopiert!',
         clear_btn: 'Löschen',
         char_count: 'Zeichen',
-        auto_speak_label: 'Ergebnisse automatisch vorlesen'
+        auto_speak_label: 'Ergebnisse automatisch vorlesen',
+        connection_error: 'Seiteninhalt konnte nicht abgerufen werden. Bitte klicken Sie auf die Seite oder aktivieren Sie über das Kontextmenü.',
+        no_errors_found: '✅ Keine Fehler gefunden, der Text muss nicht korrigiert werden.',
+        correction_details: '📝 Korrekturdetails:',
+        proofread_context: 'Überarbeiten Sie diesen Text, um ihn flüssiger und professioneller zu gestalten. Zielsprache: ',
+        expand_prompt: 'Erweitern Sie den folgenden Text mit mehr Details und Tiefe, Zielsprache ',
+        chrome_ai_unsupported_no_fallback: 'Chrome AI unterstützt diesen Modus nicht und es ist keine Online-API als Fallback konfiguriert',
+        url_must_be_http: 'URL muss mit http:// oder https:// beginnen',
+        invalid_url: 'Ungültiges URL-Format',
     },
     'Español': {
         title: 'Asistente de IA',
@@ -421,6 +561,9 @@ export const translations: Record<string, any> = {
         detail_creative: 'Creativo',
         engine_webgpu: 'WebGPU local (Rápido)',
         engine_wasm: 'WASM local (Compatible)',
+        engine_chrome_ai: 'Chrome IA Integrada (Recomendado)',
+        chrome_ai_status: 'Disponibilidad de API',
+        status_ready_chrome_ai: 'Chrome AI Listo',
         engine_online: 'API en línea',
         action_btn_load: 'Activer modelo local',
         action_btn_execute: 'Ejecutar',
@@ -440,6 +583,14 @@ export const translations: Record<string, any> = {
         copied: '¡Copiado!',
         clear_btn: 'Limpiar',
         char_count: 'carácteres',
-        auto_speak_label: 'Lectura automática de resultados'
+        auto_speak_label: 'Lectura automática de resultados',
+        connection_error: 'No se pudo obtener el contenido de la página. Haga clic en la página o active a través del menú contextual.',
+        no_errors_found: '✅ No se encontraron errores, el texto no necesita corrección.',
+        correction_details: '📝 Detalles de corrección:',
+        proofread_context: 'Pule este texto para hacerlo más fluido y profesional. Idioma objetivo: ',
+        expand_prompt: 'Expande el siguiente texto con más detalles y profundidad, idioma objetivo ',
+        chrome_ai_unsupported_no_fallback: 'Chrome AI no soporta este modo y no hay API en línea configurada como respaldo',
+        url_must_be_http: 'La URL debe comenzar con http:// o https://',
+        invalid_url: 'Formato de URL no válido',
     }
 };

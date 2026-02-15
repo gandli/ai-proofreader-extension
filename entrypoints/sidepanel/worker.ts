@@ -1,20 +1,15 @@
 import { MLCEngine, InitProgressReport, ChatCompletionMessageParam } from "@mlc-ai/web-llm";
 import { getSystemPrompt } from "./worker-utils";
+import type { Settings, ModeKey, WorkerInboundMessage } from "./types";
 
 class WebLLMWorker {
     static engine: MLCEngine | null = null;
     static currentModel = "";
     static currentEngineType = "";
 
-    static async getEngine(settings: any, onProgress?: (progress: InitProgressReport) => void) {
-        const model = settings?.localModel || "Qwen2.5-0.5B-Instruct-q4f16_1-MLC";
-        const engineType = settings?.engine || "local-gpu";
-
-        // Re-initialize if model or engine type changed
-        if (this.engine && (this.currentModel !== model || this.currentEngineType !== engineType)) {
-            console.log("[Worker] Settings changed, re-loading engine...");
-            // WebLLM handles reloading internally with .reload(modelId)
-        }
+    static async getEngine(settings: Settings, onProgress?: (progress: InitProgressReport) => void) {
+        const model = settings.localModel || "Qwen2.5-0.5B-Instruct-q4f16_1-MLC";
+        const engineType = settings.engine || "local-gpu";
 
         if (!this.engine) {
             this.engine = new MLCEngine();
@@ -27,14 +22,10 @@ class WebLLMWorker {
 
             console.log(`[Worker] Loading WebLLM model: ${model} on ${engineType}`);
             try {
-                await this.engine.reload(model, {
-                    context_window_size: 8192,
-                });
-                // Update state only after successful reload
+                await this.engine.reload(model, { context_window_size: 8192 });
                 this.currentModel = model;
                 this.currentEngineType = engineType;
             } catch (error) {
-                // If reload fails, reset internal state so it retries next time
                 this.currentModel = "";
                 this.currentEngineType = "";
                 throw error;
@@ -45,8 +36,8 @@ class WebLLMWorker {
     }
 }
 
-// Queue management for local inference
-const localRequestQueue: { text: string; mode: string; settings: any }[] = [];
+interface QueueItem { text: string; mode: ModeKey; settings: Settings; requestId?: string }
+const localRequestQueue: QueueItem[] = [];
 let isLocalProcessing = false;
 
 async function processLocalQueue() {
@@ -54,46 +45,35 @@ async function processLocalQueue() {
     isLocalProcessing = true;
 
     while (localRequestQueue.length > 0) {
-        const { text, mode, settings } = localRequestQueue.shift()!;
-        let currentMode = mode || "proofread";
+        const { text, mode, settings, requestId } = localRequestQueue.shift()!;
         try {
-            console.log(`[Worker] Processing queued local task: ${currentMode}`);
-
-            const systemPrompt = getSystemPrompt(currentMode, settings);
+            const systemPrompt = getSystemPrompt(mode, settings);
             const userContent = `【待处理文本】：\n${text}`;
-
             const engine = await WebLLMWorker.getEngine(settings);
             const messages: ChatCompletionMessageParam[] = [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userContent },
             ];
-
-            const chunks = await engine.chat.completions.create({
-                messages,
-                stream: true,
-            });
-
+            const chunks = await engine.chat.completions.create({ messages, stream: true });
             let fullText = "";
             for await (const chunk of chunks) {
                 const content = chunk.choices[0]?.delta?.content || "";
                 fullText += content;
-                self.postMessage({ type: "update", text: fullText, mode: currentMode });
+                self.postMessage({ type: "update", text: fullText, mode, requestId });
             }
-            console.log(`[Worker] Local Gen Complete. Mode: ${currentMode}`);
-            self.postMessage({ type: "complete", text: fullText, mode: currentMode });
-        } catch (error: any) {
-            console.error("[Worker] Local Generate Error:", error);
-            self.postMessage({ type: "error", error: error.message, mode: currentMode });
+            self.postMessage({ type: "complete", text: fullText, mode, requestId });
+        } catch (error: unknown) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            self.postMessage({ type: "error", error: errMsg, mode, requestId });
         }
     }
 
     isLocalProcessing = false;
 }
 
-async function handleGenerateOnline(text: string, mode: string, settings: any) {
-    const currentMode = mode || "proofread";
+async function handleGenerateOnline(text: string, mode: ModeKey, settings: Settings, requestId?: string) {
     try {
-        const systemPrompt = getSystemPrompt(currentMode, settings);
+        const systemPrompt = getSystemPrompt(mode, settings);
         const userContent = `【待处理文本】：\n${text}`;
 
         if (!settings.apiKey) throw new Error("请在设置中配置 API Key");
@@ -115,7 +95,7 @@ async function handleGenerateOnline(text: string, mode: string, settings: any) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
+            const errorData = await response.json().catch(() => ({})) as { error?: { message?: string } };
             throw new Error(errorData.error?.message || `API 请求失败: ${response.status}`);
         }
 
@@ -128,57 +108,54 @@ async function handleGenerateOnline(text: string, mode: string, settings: any) {
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-
                 const chunk = decoder.decode(value, { stream: true });
                 buffer += chunk;
                 const lines = buffer.split('\n');
                 buffer = lines.pop() || "";
-
                 for (const line of lines) {
                     const trimmed = line.trim();
-                    if (!trimmed) continue;
-                    if (trimmed.startsWith('data: ')) {
-                        const dataStr = trimmed.slice(6).trim();
-                        if (dataStr === '[DONE]') continue;
-                        try {
-                            const json = JSON.parse(dataStr);
-                            const content = json.choices[0]?.delta?.content || "";
-                            fullText += content;
-                            self.postMessage({ type: "update", text: fullText, mode: currentMode });
-                        } catch (e) {
-                            buffer = line + '\n' + buffer;
-                        }
+                    if (!trimmed || !trimmed.startsWith('data: ')) continue;
+                    const dataStr = trimmed.slice(6).trim();
+                    if (dataStr === '[DONE]') continue;
+                    try {
+                        const json = JSON.parse(dataStr) as { choices: Array<{ delta?: { content?: string } }> };
+                        fullText += json.choices[0]?.delta?.content || "";
+                        self.postMessage({ type: "update", text: fullText, mode, requestId });
+                    } catch {
+                        // Skip malformed SSE data lines rather than re-buffering to avoid infinite loops
+                        console.warn('[Worker] Skipping malformed SSE data:', dataStr.slice(0, 100));
                     }
                 }
             }
         }
-        self.postMessage({ type: "complete", text: fullText, mode: currentMode });
-    } catch (error: any) {
-        console.error("[Worker] Online Error:", error);
-        self.postMessage({ type: "error", error: error.message, mode: currentMode });
+        self.postMessage({ type: "complete", text: fullText, mode, requestId });
+    } catch (error: unknown) {
+        const errMsg = error instanceof Error ? error.message : String(error);
+        self.postMessage({ type: "error", error: errMsg, mode, requestId });
     }
 }
 
-self.onmessage = async (event: MessageEvent) => {
-    const { type, text, settings, mode } = event.data;
+self.onmessage = async (event: MessageEvent<WorkerInboundMessage>) => {
+    const msg = event.data;
 
-    if (type === "load") {
+    if (msg.type === "load") {
         try {
-            await WebLLMWorker.getEngine(settings, (progress) => {
+            await WebLLMWorker.getEngine(msg.settings, (progress) => {
                 self.postMessage({
                     type: "progress",
                     progress: { status: "progress", progress: progress.progress * 100, text: progress.text }
                 });
             });
             self.postMessage({ type: "ready" });
-        } catch (error: any) {
-            self.postMessage({ type: "error", error: error.message });
+        } catch (error: unknown) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            self.postMessage({ type: "error", error: errMsg });
         }
-    } else if (type === "generate") {
-        if (settings.engine === 'online') {
-            handleGenerateOnline(text, mode, settings);
+    } else if (msg.type === "generate") {
+        if (msg.settings.engine === 'online') {
+            handleGenerateOnline(msg.text, msg.mode, msg.settings, msg.requestId);
         } else {
-            localRequestQueue.push({ text, mode, settings });
+            localRequestQueue.push({ text: msg.text, mode: msg.mode, settings: msg.settings, requestId: msg.requestId });
             processLocalQueue();
         }
     }

@@ -2,21 +2,21 @@ import { SVG_STRING } from './assets/floatingIcon';
 import tailwindStyles from './content-styles.css?inline';
 
 export default defineContentScript({
-  matches: ['<all_urls>'],
+  // TODO: <all_urls> is broad but required for the floating icon/translation popup
+  // to work on any page. activeTab alone doesn't grant content script injection.
+  // Excluding browser-internal pages via the exclude pattern below.
+  matches: ['http://*/*', 'https://*/*'],
   main() {
     let floatingIcon: HTMLElement | null = null;
     let translationPopup: HTMLElement | null = null;
     let selectedText = '';
     let lastRect: DOMRect | null = null;
-    let hoverTimer: any = null;
+    let hoverTimer: ReturnType<typeof setTimeout> | null = null;
 
     console.log('[AI Proofduck] Content script initialized.');
     
-    interface Settings {
-      engine?: string;
-      apiKey?: string;
-      localModel?: string;
-    }
+    // Minimal subset of Settings needed by content script
+    type ContentSettings = Partial<Pick<import('./sidepanel/types').Settings, 'engine' | 'apiKey' | 'localModel'>>;
 
     const createTranslationPopup = () => {
       const container = document.createElement('div');
@@ -222,7 +222,7 @@ export default defineContentScript({
       
       // Proactive check: check both settings and engine status
       const storage = await browser.storage.local.get(['settings', 'engineStatus']);
-      let settings = storage.settings as Settings | undefined;
+      let settings = storage.settings as ContentSettings | undefined;
       const engineStatus = storage.engineStatus as string | undefined;
       
       // If settings don't exist in storage yet, use defaults similar to App.tsx
@@ -501,7 +501,7 @@ export default defineContentScript({
         if (newStatus === 'ready' && selectedText) {
           const shadowRootNode = translationPopup.shadowRoot!;
           const statusLabel = shadowRootNode.getElementById('status-label');
-          if (statusLabel && statusLabel.textContent === 'ACTION_REQUIRED') {
+          if (statusLabel && statusLabel.textContent === 'ACTION REQUIRED') {
             console.log('[AI Proofduck] Engine ready, retrying translation automatically...');
             showTranslation(selectedText, lastRect || new DOMRect());
           }
