@@ -5,12 +5,24 @@
 /** The five processing modes */
 export type ModeKey = 'summarize' | 'correct' | 'proofread' | 'translate' | 'expand';
 
+/** Engine type */
+export type EngineType = 'local-gpu' | 'local-wasm' | 'online';
+
+/** Tone type */
+export type ToneType = 'professional' | 'casual' | 'academic' | 'concise';
+
+/** Detail level type */
+export type DetailLevelType = 'standard' | 'detailed' | 'creative';
+
+/** Shared status type used across components */
+export type StatusType = 'idle' | 'loading' | 'ready' | 'error';
+
 /** Persisted user settings */
 export interface Settings {
-  engine: string;
+  engine: EngineType;
   extensionLanguage: string;
-  tone: string;
-  detailLevel: string;
+  tone: ToneType;
+  detailLevel: DetailLevelType;
   localModel: string;
   apiBaseUrl: string;
   apiKey: string;

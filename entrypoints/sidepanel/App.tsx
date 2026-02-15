@@ -27,7 +27,7 @@ function App() {
     setModeResults, setGeneratingModes, setSelectedText, setShowSettings,
   });
 
-  useEffect(() => { loadPersistedSettings().then(t => { if (t) setSelectedText(t); }); }, []);
+  useEffect(() => { loadPersistedSettings().then(text => { if (text) setSelectedText(text); }); }, []);
 
   const t = translations[settings.extensionLanguage] || translations['中文'];
 
@@ -41,6 +41,8 @@ function App() {
       }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
+      // NOTE: String matching for connection errors is fragile but unavoidable here —
+      // browser.tabs.sendMessage throws generic Error objects without error codes.
       setError(msg.includes('Could not establish connection') ? t.connection_error : (msg || t.status_error));
     }
   };

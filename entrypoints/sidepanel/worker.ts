@@ -122,7 +122,8 @@ async function handleGenerateOnline(text: string, mode: ModeKey, settings: Setti
                         fullText += json.choices[0]?.delta?.content || "";
                         self.postMessage({ type: "update", text: fullText, mode, requestId });
                     } catch {
-                        buffer = line + '\n' + buffer;
+                        // Skip malformed SSE data lines rather than re-buffering to avoid infinite loops
+                        console.warn('[Worker] Skipping malformed SSE data:', dataStr.slice(0, 100));
                     }
                 }
             }

@@ -397,7 +397,7 @@ export const translations: Record<string, any> = {
         status_ready_online: 'En línea listo',
         status_generating: 'Generando...',
         status_error: 'Error',
-        click_to_reset: 'Click to Reset',
+        click_to_reset: 'Restablecer',
         settings: 'Ajustes',
         mode_summarize: 'Resumir',
         mode_correct: 'Corregir',
@@ -433,7 +433,7 @@ export const translations: Record<string, any> = {
         engine_webgpu: 'WebGPU local (Rápido)',
         engine_wasm: 'WASM local (Compatible)',
         engine_online: 'API en línea',
-        action_btn_load: 'Activer modelo local',
+        action_btn_load: 'Activar modelo local',
         action_btn_execute: 'Ejecutar',
         action_generating: 'Generando...',
         offline_import_title: 'Importación de modelo offline',
@@ -452,6 +452,12 @@ export const translations: Record<string, any> = {
         clear_btn: 'Limpiar',
         char_count: 'carácteres',
         auto_speak_label: 'Lectura automática de resultados',
-        connection_error: 'No se pudo obtener el contenido de la página. Haga clic en la página o active a través del menú contextual.'
+        connection_error: 'No se pudo obtener el contenido de la página. Haga clic en la página o active a través del menú contextual.',
+        no_cached_files: 'No se encontraron archivos en caché para este modelo.',
+        api_base_url: 'URL base de API',
+        api_key: 'Clave API',
+        model_id: 'ID del modelo',
+        invalid_url: 'Formato de URL no válido',
+        url_must_be_http: 'La URL debe comenzar con http:// o https://'
     }
 };

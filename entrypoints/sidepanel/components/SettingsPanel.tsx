@@ -1,4 +1,4 @@
-import { Settings } from '../types';
+import { Settings, StatusType, EngineType, ToneType, DetailLevelType } from '../types';
 import { CloseIcon } from './Icons';
 import { ModelImportExport } from './ModelImportExport';
 
@@ -7,7 +7,7 @@ interface SettingsPanelProps {
   updateSettings: (s: Partial<Settings>) => void;
   onClose: () => void;
   status: string;
-  setStatus: (s: 'idle' | 'loading' | 'ready' | 'error') => void;
+  setStatus: (s: StatusType) => void;
   setProgress: (p: { progress: number; text: string }) => void;
   setError: (e: string) => void;
   t: Record<string, string>;
@@ -45,7 +45,7 @@ export function SettingsPanel({ settings, updateSettings, onClose, status, setSt
           </div>
           <div className="flex flex-col gap-1.5">
             <label className={labelClass}>{t.engine_label}</label>
-            <select className={selectClass} value={settings.engine} onChange={e => updateSettings({ engine: e.target.value })}>
+            <select className={selectClass} value={settings.engine} onChange={e => updateSettings({ engine: e.target.value as EngineType })}>
               <option value="local-gpu">{t.engine_webgpu}</option>
               <option value="local-wasm">{t.engine_wasm}</option>
               <option value="online">{t.engine_online}</option>
@@ -90,15 +90,15 @@ export function SettingsPanel({ settings, updateSettings, onClose, status, setSt
           <div className="flex flex-col gap-3 p-4 bg-white border border-slate-200 rounded-xl dark:bg-brand-dark-surface dark:border-slate-700">
             <h3 className="m-0 text-sm font-bold text-slate-800 dark:text-slate-200">{t.api_config}</h3>
             <div className="flex flex-col gap-1.5">
-              <label className={labelClass}>API Base URL</label>
+              <label className={labelClass}>{t.api_base_url}</label>
               <input className={inputClass} type="text" value={settings.apiBaseUrl} onChange={e => updateSettings({ apiBaseUrl: e.target.value })} />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className={labelClass}>API Key</label>
+              <label className={labelClass}>{t.api_key}</label>
               <input className={inputClass} type="password" value={settings.apiKey} onChange={e => updateSettings({ apiKey: e.target.value })} />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className={labelClass}>Model ID</label>
+              <label className={labelClass}>{t.model_id}</label>
               <input className={inputClass} type="text" value={settings.apiModel} onChange={e => updateSettings({ apiModel: e.target.value })} />
             </div>
           </div>
@@ -109,7 +109,7 @@ export function SettingsPanel({ settings, updateSettings, onClose, status, setSt
           <h3 className="m-0 text-sm font-bold text-slate-800 dark:text-slate-200">{t.func_pref}</h3>
           <div className="flex flex-col gap-1.5">
             <label className={labelClass}>{t.tone_label}</label>
-            <select className={selectClass} value={settings.tone} onChange={e => updateSettings({ tone: e.target.value })}>
+            <select className={selectClass} value={settings.tone} onChange={e => updateSettings({ tone: e.target.value as ToneType })}>
               <option value="professional">{t.tone_professional}</option>
               <option value="casual">{t.tone_casual}</option>
               <option value="academic">{t.tone_academic}</option>
@@ -118,7 +118,7 @@ export function SettingsPanel({ settings, updateSettings, onClose, status, setSt
           </div>
           <div className="flex flex-col gap-1.5">
             <label className={labelClass}>{t.detail_label}</label>
-            <select className={selectClass} value={settings.detailLevel} onChange={e => updateSettings({ detailLevel: e.target.value })}>
+            <select className={selectClass} value={settings.detailLevel} onChange={e => updateSettings({ detailLevel: e.target.value as DetailLevelType })}>
               <option value="standard">{t.detail_standard}</option>
               <option value="detailed">{t.detail_detailed}</option>
               <option value="creative">{t.detail_creative}</option>

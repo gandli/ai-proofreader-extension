@@ -1,16 +1,20 @@
-import { Settings } from '../types';
+import { useRef } from 'react';
+import { Settings, StatusType } from '../types';
 import { ExportIcon, ImportIcon } from './Icons';
 
 interface ModelImportExportProps {
   settings: Settings;
   status: string;
-  setStatus: (s: 'idle' | 'loading' | 'ready' | 'error') => void;
+  setStatus: (s: StatusType) => void;
   setProgress: (p: { progress: number; text: string }) => void;
   setError: (e: string) => void;
   t: Record<string, string>;
 }
 
 export function ModelImportExport({ settings, status, setStatus, setProgress, setError, t }: ModelImportExportProps) {
+  const folderInputRef = useRef<HTMLInputElement>(null);
+  const pkgInputRef = useRef<HTMLInputElement>(null);
+
   const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -48,8 +52,9 @@ export function ModelImportExport({ settings, status, setStatus, setProgress, se
       const keys = await cache.keys();
       const modelId = settings.localModel;
       const filteredKeys = keys.filter(req => req.url.includes(modelId));
-      if (filteredKeys.length === 0) { alert('No cached files found for this model.'); setStatus('ready'); return; }
+      if (filteredKeys.length === 0) { alert(t.no_cached_files); setStatus('ready'); return; }
 
+      // Collect cache responses (keep as Blobs to avoid OOM on large models)
       const filesData: { url: string; blob: Blob }[] = [];
       for (let i = 0; i < filteredKeys.length; i++) {
         const resp = await cache.match(filteredKeys[i]);
@@ -57,28 +62,36 @@ export function ModelImportExport({ settings, status, setStatus, setProgress, se
         setProgress({ progress: ((i + 1) / filteredKeys.length) * 50, text: `${t.exporting} (${i + 1}/${filteredKeys.length})` });
       }
 
+      // Build .mlcp using Blob parts to avoid allocating a single massive ArrayBuffer
       const encoder = new TextEncoder();
-      const encodedUrls = filesData.map(f => encoder.encode(f.url));
-      let totalSize = 8;
-      for (let i = 0; i < filesData.length; i++) totalSize += 4 + encodedUrls[i].length + 8 + filesData[i].blob.size;
-      const buffer = new ArrayBuffer(totalSize);
-      const view = new DataView(buffer);
-      view.setUint32(0, 0x4d4c4350);
-      view.setUint32(4, filesData.length);
-      let offset = 8;
+      const blobParts: BlobPart[] = [];
+
+      // 8-byte file header: magic (4) + fileCount (4)
+      const headerBuf = new ArrayBuffer(8);
+      const headerView = new DataView(headerBuf);
+      headerView.setUint32(0, 0x4d4c4350);
+      headerView.setUint32(4, filesData.length);
+      blobParts.push(new Uint8Array(headerBuf));
+
       for (let i = 0; i < filesData.length; i++) {
         const f = filesData[i];
-        const urlBytes = encodedUrls[i];
-        view.setUint32(offset, urlBytes.length);
-        new Uint8Array(buffer, offset + 4, urlBytes.length).set(urlBytes);
-        offset += 4 + urlBytes.length;
-        view.setBigUint64(offset, BigInt(f.blob.size));
-        const blobData = new Uint8Array(await f.blob.arrayBuffer());
-        new Uint8Array(buffer, offset + 8, f.blob.size).set(blobData);
-        offset += 8 + f.blob.size;
+        const urlBytes = encoder.encode(f.url);
+
+        // Per-file header: urlLen (4) + urlBytes + blobSize (8)
+        const perFileHeader = new ArrayBuffer(4 + urlBytes.length + 8);
+        const pfView = new DataView(perFileHeader);
+        pfView.setUint32(0, urlBytes.length);
+        new Uint8Array(perFileHeader, 4, urlBytes.length).set(urlBytes);
+        pfView.setBigUint64(4 + urlBytes.length, BigInt(f.blob.size));
+        blobParts.push(new Uint8Array(perFileHeader));
+
+        // Append original Blob directly (no ArrayBuffer conversion — avoids OOM)
+        blobParts.push(f.blob);
+
         setProgress({ progress: 50 + ((i + 1) / filesData.length) * 50, text: `${t.exporting} (Packing ${i + 1}/${filesData.length})` });
       }
-      const finalBlob = new Blob([buffer], { type: 'application/octet-stream' });
+
+      const finalBlob = new Blob(blobParts, { type: 'application/octet-stream' });
       const downloadUrl = URL.createObjectURL(finalBlob);
       const a = document.createElement('a');
       a.href = downloadUrl;
@@ -90,7 +103,7 @@ export function ModelImportExport({ settings, status, setStatus, setProgress, se
     } catch (err: unknown) {
       console.error('Export failed:', err);
       alert(t.export_failed);
-      setStatus(prevStatus as 'idle' | 'loading' | 'ready' | 'error');
+      setStatus(prevStatus as StatusType);
     }
   };
 
@@ -133,11 +146,11 @@ export function ModelImportExport({ settings, status, setStatus, setProgress, se
         <div className="flex flex-col gap-2 relative">
           <button
             className="flex items-center justify-center gap-1.5 py-2 px-3 text-[13px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg cursor-pointer transition-all w-full hover:bg-brand-orange-light hover:border-brand-orange hover:text-brand-orange hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed dark:bg-brand-dark-bg dark:border-slate-700 dark:text-slate-400 dark:hover:bg-[#2d1f10] dark:hover:border-brand-orange dark:hover:text-[#ff7a3d]"
-            onClick={() => document.getElementById('folder-input')?.click()}
+            onClick={() => folderInputRef.current?.click()}
           >
             {t.offline_import_btn}
           </button>
-          <input id="folder-input" type="file" webkitdirectory="true" className="hidden" onChange={handleFileImport} />
+          <input ref={folderInputRef} type="file" webkitdirectory="true" className="hidden" onChange={handleFileImport} />
           <div className="flex gap-2">
             <button
               className="flex items-center justify-center gap-1.5 py-2 px-3 text-[13px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg cursor-pointer transition-all flex-1 text-xs hover:bg-brand-orange-light hover:border-brand-orange hover:text-brand-orange hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed dark:bg-brand-dark-bg dark:border-slate-700 dark:text-slate-400 dark:hover:bg-[#2d1f10] dark:hover:border-brand-orange dark:hover:text-[#ff7a3d]"
@@ -148,12 +161,12 @@ export function ModelImportExport({ settings, status, setStatus, setProgress, se
             </button>
             <button
               className="flex items-center justify-center gap-1.5 py-2 px-3 text-[13px] font-medium text-slate-600 bg-white border border-slate-200 rounded-lg cursor-pointer transition-all flex-1 text-xs hover:bg-brand-orange-light hover:border-brand-orange hover:text-brand-orange hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed dark:bg-brand-dark-bg dark:border-slate-700 dark:text-slate-400 dark:hover:bg-[#2d1f10] dark:hover:border-brand-orange dark:hover:text-[#ff7a3d]"
-              onClick={() => document.getElementById('pkg-input')?.click()}
+              onClick={() => pkgInputRef.current?.click()}
               disabled={status === 'loading'}
             >
               <ImportIcon /> {t.import_pkg_btn}
             </button>
-            <input id="pkg-input" type="file" accept=".mlcp" className="hidden" onChange={handleImportPackage} />
+            <input ref={pkgInputRef} type="file" accept=".mlcp" className="hidden" onChange={handleImportPackage} />
           </div>
         </div>
       </div>

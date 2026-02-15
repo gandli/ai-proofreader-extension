@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Settings, DEFAULT_SETTINGS } from '../types';
+import { Settings, DEFAULT_SETTINGS, WorkerInboundMessage, StatusType } from '../types';
 
 export function useSettings() {
   const [settings, setSettings] = useState<Settings>({ ...DEFAULT_SETTINGS });
-  const [status, setStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  const [status, setStatus] = useState<StatusType>('idle');
   const [showSettings, setShowSettings] = useState(false);
   const settingsRef = useRef(settings);
   const statusRef = useRef(status);
@@ -53,7 +53,7 @@ export function useSettings() {
 
   const updateSettings = useCallback(async (
     newSettings: Partial<Settings>,
-    workerPostMessage?: (msg: unknown) => void,
+    workerPostMessage?: (msg: WorkerInboundMessage) => void,
   ) => {
     const updated = { ...settingsRef.current, ...newSettings };
     setSettings(updated);
