@@ -578,30 +578,35 @@ function App() {
         <div className="flex items-stretch gap-1.5 mb-0.5">
           <section className="flex flex-1 gap-1 p-1 mb-0 rounded-lg bg-brand-orange-light dark:bg-brand-dark-surface">
             <button
+              aria-pressed={mode === 'summarize'}
               className={`flex-1 py-2 px-0.5 border-none bg-transparent rounded-md text-[11px] font-semibold text-slate-600 cursor-pointer transition-all hover:bg-brand-orange/10 hover:text-brand-orange dark:text-slate-400 dark:hover:bg-brand-orange/15 dark:hover:text-[#ff7a3d] ${mode === 'summarize' ? 'bg-white text-brand-orange shadow-sm dark:bg-[#2a2a3e] dark:text-[#ff7a3d]' : ''}`}
               onClick={() => setMode('summarize')}
             >
               {t.mode_summarize}
             </button>
             <button
+              aria-pressed={mode === 'correct'}
               className={`flex-1 py-2 px-0.5 border-none bg-transparent rounded-md text-[11px] font-semibold text-slate-600 cursor-pointer transition-all hover:bg-brand-orange/10 hover:text-brand-orange dark:text-slate-400 dark:hover:bg-brand-orange/15 dark:hover:text-[#ff7a3d] ${mode === 'correct' ? 'bg-white text-brand-orange shadow-sm dark:bg-[#2a2a3e] dark:text-[#ff7a3d]' : ''}`}
               onClick={() => setMode('correct')}
             >
               {t.mode_correct}
             </button>
             <button
+              aria-pressed={mode === 'proofread'}
               className={`flex-1 py-2 px-0.5 border-none bg-transparent rounded-md text-[11px] font-semibold text-slate-600 cursor-pointer transition-all hover:bg-brand-orange/10 hover:text-brand-orange dark:text-slate-400 dark:hover:bg-brand-orange/15 dark:hover:text-[#ff7a3d] ${mode === 'proofread' ? 'bg-white text-brand-orange shadow-sm dark:bg-[#2a2a3e] dark:text-[#ff7a3d]' : ''}`}
               onClick={() => setMode('proofread')}
             >
               {t.mode_proofread}
             </button>
             <button
+              aria-pressed={mode === 'translate'}
               className={`flex-1 py-2 px-0.5 border-none bg-transparent rounded-md text-[11px] font-semibold text-slate-600 cursor-pointer transition-all hover:bg-brand-orange/10 hover:text-brand-orange dark:text-slate-400 dark:hover:bg-brand-orange/15 dark:hover:text-[#ff7a3d] ${mode === 'translate' ? 'bg-white text-brand-orange shadow-sm dark:bg-[#2a2a3e] dark:text-[#ff7a3d]' : ''}`}
               onClick={() => setMode('translate')}
             >
               {t.mode_translate}
             </button>
             <button
+              aria-pressed={mode === 'expand'}
               className={`flex-1 py-2 px-0.5 border-none bg-transparent rounded-md text-[11px] font-semibold text-slate-600 cursor-pointer transition-all hover:bg-brand-orange/10 hover:text-brand-orange dark:text-slate-400 dark:hover:bg-brand-orange/15 dark:hover:text-[#ff7a3d] ${mode === 'expand' ? 'bg-white text-brand-orange shadow-sm dark:bg-[#2a2a3e] dark:text-[#ff7a3d]' : ''}`}
               onClick={() => setMode('expand')}
             >
@@ -610,6 +615,8 @@ function App() {
           </section>
 
           <button
+            aria-label={t.settings}
+            aria-expanded={showSettings}
             className="flex items-center justify-center px-3 ml-0 text-slate-500 transition-all rounded-lg cursor-pointer bg-brand-orange-light hover:bg-white hover:text-brand-orange hover:shadow-sm dark:bg-brand-dark-surface dark:text-slate-400 dark:hover:bg-[#2a2a3e] dark:hover:text-[#ff7a3d]"
             onClick={() => {
               setShowSettings(true);
@@ -625,6 +632,7 @@ function App() {
             </h3>
             <div className="flex gap-1.5">
               <button
+                aria-label={t.clear_btn || 'Clear'}
                 className="flex items-center justify-center p-1.5 text-slate-500 transition-all bg-white border border-slate-200 rounded-md cursor-pointer shadow-sm hover:bg-brand-orange-light hover:border-brand-orange hover:text-brand-orange hover:shadow-md hover:-translate-y-px dark:bg-brand-dark-surface dark:border-slate-700 dark:text-slate-400 dark:hover:bg-[#2d1f10] dark:hover:border-brand-orange dark:hover:text-[#ff7a3d]"
                 onClick={handleClear}
                 title={t.clear_btn || 'Clear'}
@@ -632,6 +640,7 @@ function App() {
                 <ClearIcon />
               </button>
               <button
+                aria-label={t.fetch_page_content || 'Fetch Page Content'}
                 className="flex items-center justify-center p-1.5 transition-all border rounded-md cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-px bg-brand-orange-light border-brand-orange/20 text-brand-orange hover:bg-brand-orange-light hover:border-brand-orange hover:text-brand-orange dark:bg-brand-dark-surface dark:border-slate-700 dark:text-slate-400 dark:hover:bg-[#2d1f10] dark:hover:border-brand-orange dark:hover:text-[#ff7a3d]"
                 onClick={handleFetchContent}
                 title={t.fetch_page_content || 'Fetch Page Content'}
@@ -673,6 +682,7 @@ function App() {
               </h3>
               {modeResults[mode] && (
                 <button
+                  aria-label={t.copy_btn || 'Copy'}
                   className="flex items-center justify-center p-1.5 text-slate-500 transition-all bg-white border border-slate-200 rounded-md cursor-pointer shadow-sm hover:bg-brand-orange-light hover:border-brand-orange hover:text-brand-orange hover:shadow-md hover:-translate-y-px dark:bg-brand-dark-surface dark:border-slate-700 dark:text-slate-400 dark:hover:bg-[#2d1f10] dark:hover:border-brand-orange dark:hover:text-[#ff7a3d]"
                   onClick={handleCopyResult}
                   title={t.copy_btn || 'Copy'}
@@ -732,6 +742,7 @@ function App() {
             <div className="flex items-center justify-between mb-2">
               <h2 className="m-0 text-xl font-extrabold">{t.settings}</h2>
               <button
+                aria-label="Close"
                 className="flex items-center justify-center w-8 h-8 text-slate-500 border-none rounded-full cursor-pointer bg-slate-100 dark:bg-brand-dark-surface dark:text-slate-400"
                 onClick={() => setShowSettings(false)}
               >
