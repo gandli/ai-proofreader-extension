@@ -188,7 +188,8 @@ export const translations: Record<string, any> = {
         copied: 'コピーしました！',
         clear_btn: 'クリア',
         char_count: '文字',
-        auto_speak_label: '結果を自動的に読み上げる'
+        auto_speak_label: '結果を自動的に読み上げる',
+        connection_error: 'ページのコンテンツを取得できませんでした。ページをクリックするか、右クリックメニューから有効にしてください（権限の制限による）。'
     },
     '한국어': {
         title: 'AI 어시스턴트',
@@ -251,7 +252,8 @@ export const translations: Record<string, any> = {
         copied: '복사됨!',
         clear_btn: '지우기',
         char_count: '자',
-        auto_speak_label: '결과 자동 읽기'
+        auto_speak_label: '결과 자동 읽기',
+        connection_error: '페이지 콘텐츠를 가져올 수 없습니다. 권한 제한으로 인해 페이지를 클릭하거나 우클릭 메뉴를 사용하여 활성화하십시오.'
     },
     'Français': {
         title: 'Assistant IA',
@@ -314,7 +316,8 @@ export const translations: Record<string, any> = {
         copied: 'Copié !',
         clear_btn: 'Effacer',
         char_count: 'carac.',
-        auto_speak_label: 'Lecture automatique des résultats'
+        auto_speak_label: 'Lecture automatique des résultats',
+        connection_error: 'Impossible de récupérer le contenu de la page. Veuillez cliquer sur la page ou utiliser le menu contextuel pour l\'activer (en raison des restrictions de permission).'
     },
     'Deutsch': {
         title: 'KI-Assistent',
@@ -377,7 +380,8 @@ export const translations: Record<string, any> = {
         copied: 'Kopiert!',
         clear_btn: 'Löschen',
         char_count: 'Zeichen',
-        auto_speak_label: 'Ergebnisse automatisch vorlesen'
+        auto_speak_label: 'Ergebnisse automatisch vorlesen',
+        connection_error: 'Seiteninhalt konnte nicht abgerufen werden. Bitte klicken Sie auf die Seite oder verwenden Sie das Kontextmenü zum Aktivieren (aufgrund von Berechtigungseinschränkungen).'
     },
     'Español': {
         title: 'Asistente de IA',
@@ -440,6 +444,7 @@ export const translations: Record<string, any> = {
         copied: '¡Copiado!',
         clear_btn: 'Limpiar',
         char_count: 'carácteres',
-        auto_speak_label: 'Lectura automática de resultados'
+        auto_speak_label: 'Lectura automática de resultados',
+        connection_error: 'No se pudo obtener el contenido de la página. Haga clic en la página o use el menú contextual para activar (debido a restricciones de permisos).'
     }
 };

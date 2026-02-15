@@ -1,5 +1,5 @@
 import { MLCEngine, InitProgressReport, ChatCompletionMessageParam } from "@mlc-ai/web-llm";
-import { getSystemPrompt } from "./worker-utils";
+import { getSystemPrompt, formatUserPrompt } from "./worker-utils";
 
 class WebLLMWorker {
     static engine: MLCEngine | null = null;
@@ -60,7 +60,7 @@ async function processLocalQueue() {
             console.log(`[Worker] Processing queued local task: ${currentMode}`);
 
             const systemPrompt = getSystemPrompt(currentMode, settings);
-            const userContent = `【待处理文本】：\n${text}`;
+            const userContent = `【待处理文本】：\n${formatUserPrompt(text)}`;
 
             const engine = await WebLLMWorker.getEngine(settings);
             const messages: ChatCompletionMessageParam[] = [
@@ -94,7 +94,7 @@ async function handleGenerateOnline(text: string, mode: string, settings: any) {
     const currentMode = mode || "proofread";
     try {
         const systemPrompt = getSystemPrompt(currentMode, settings);
-        const userContent = `【待处理文本】：\n${text}`;
+        const userContent = `【待处理文本】：\n${formatUserPrompt(text)}`;
 
         if (!settings.apiKey) throw new Error("请在设置中配置 API Key");
 
