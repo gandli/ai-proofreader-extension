@@ -530,6 +530,9 @@ function App() {
       const cache = await caches.open('webllm/model');
 
       let offset = 8;
+      const promises: Promise<void>[] = [];
+      let completedCount = 0;
+
       for (let i = 0; i < fileCount; i++) {
         const urlLen = view.getUint32(offset);
         const url = decoder.decode(new Uint8Array(buffer, offset + 4, urlLen));
@@ -539,13 +542,19 @@ function App() {
         const data = new Uint8Array(buffer, offset + 8, size);
         offset += 8 + size;
 
-        await cache.put(url, new Response(data));
-
-        setProgress({
-          progress: ((i + 1) / fileCount) * 100,
-          text: `${t.importing} (${i + 1}/${fileCount})`,
-        });
+        // Optimization: Parallelize cache.put operations to speed up import
+        promises.push(
+          cache.put(url, new Response(data)).then(() => {
+            completedCount++;
+            setProgress({
+              progress: (completedCount / fileCount) * 100,
+              text: `${t.importing} (${completedCount}/${fileCount})`,
+            });
+          })
+        );
       }
+
+      await Promise.all(promises);
 
       alert(t.import_success);
       setStatus('idle');
