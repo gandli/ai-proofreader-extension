@@ -67,6 +67,7 @@ export const SuccessBubble = memo(function SuccessBubble({ output, engineName, o
             onClick={handleCopy}
             aria-label={copied ? "已复制" : "复制译文"}
             title={copied ? "已复制" : "复制译文"}
+            className="focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1"
             style={{ width: 22, height: 22, background: 'transparent', border: 'none', color: '#ced4da', cursor: 'pointer', borderRadius: 4, display: 'grid', placeItems: 'center', fontSize: 11, padding: 0 }}
             onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'white'; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#ced4da'; }}
@@ -78,6 +79,7 @@ export const SuccessBubble = memo(function SuccessBubble({ output, engineName, o
             onClick={onDismiss}
             aria-label="关闭"
             title="关闭（Esc）"
+            className="focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1"
             style={{ width: 22, height: 22, background: 'transparent', border: 'none', color: '#ced4da', cursor: 'pointer', borderRadius: 4, display: 'grid', placeItems: 'center', fontSize: 11, padding: 0 }}
             onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'white'; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#ced4da'; }}
