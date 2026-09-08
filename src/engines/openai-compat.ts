@@ -105,20 +105,22 @@ function joinUrl(baseUrl: string, path: string): string {
 
 export function createOpenAiCompatEngine(): Engine {
   // ⚡ Bolt: Cache config and watch for changes to avoid redundant storage reads on every isAvailable check
-  let currentConfigSync: Awaited<ReturnType<typeof openaiCompatConfig.get>> | undefined = undefined;
-  let configLoaded = false;
+  let configPromise: Promise<Awaited<ReturnType<typeof openaiCompatConfig.get>>> | null = null;
+  let currentModelSync: string | undefined = undefined;
 
-  const getConfig = async () => {
-    if (!configLoaded) {
-      currentConfigSync = await openaiCompatConfig.get();
-      configLoaded = true;
+  const getConfig = (): Promise<Awaited<ReturnType<typeof openaiCompatConfig.get>>> => {
+    if (!configPromise) {
+      configPromise = openaiCompatConfig.get().then(cfg => {
+        currentModelSync = cfg.model;
+        return cfg;
+      });
     }
-    return currentConfigSync!;
+    return configPromise;
   };
 
   openaiCompatConfig.watch((c) => {
-    currentConfigSync = c;
-    configLoaded = true;
+    currentModelSync = c.model;
+    configPromise = Promise.resolve(c);
   });
 
   async function requireConfig() {
@@ -141,7 +143,7 @@ export function createOpenAiCompatEngine(): Engine {
     priority: 70,
     // v0.5.3 P1-3: model 通过 getter 动态反映当前 config
     get model(): string | undefined {
-      return currentConfigSync?.model;
+      return currentModelSync;
     },
 
     async isAvailable(): Promise<boolean> {

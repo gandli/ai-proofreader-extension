@@ -48,27 +48,29 @@ function buildContents(input: EngineRunInput) {
 }
 
 export function createGeminiEngine(): Engine {
-  let model = DEFAULT_MODEL;
-  let apiKey = '';
-  let configLoaded = false;
+  let configPromise: Promise<GeminiConfig> | null = null;
 
-  const getConfig = async (): Promise<GeminiConfig> => {
-    if (!configLoaded) {
-      try {
-        const stored = await chrome.storage.local.get('geminiConfig');
-        if (stored.geminiConfig) {
-          const cfg = stored.geminiConfig as GeminiConfig;
-          model = cfg.model || DEFAULT_MODEL;
-          apiKey = cfg.apiKey || '';
+  const getConfig = (): Promise<GeminiConfig> => {
+    if (!configPromise) {
+      configPromise = (async () => {
+        let model = DEFAULT_MODEL;
+        let apiKey = '';
+        try {
+          const stored = await chrome.storage.local.get('geminiConfig');
+          if (stored.geminiConfig) {
+            const cfg = stored.geminiConfig as GeminiConfig;
+            model = cfg.model || DEFAULT_MODEL;
+            apiKey = cfg.apiKey || '';
+          }
+        } catch {
+          // 🛡️ Sentinel: Fallback to 'runtime-loaded' placeholder in content scripts
+          // to ensure DNR background injection works securely.
+          apiKey = 'runtime-loaded';
         }
-      } catch {
-        // 🛡️ Sentinel: Fallback to 'runtime-loaded' placeholder in content scripts
-        // to ensure DNR background injection works securely.
-        apiKey = 'runtime-loaded';
-      }
-      configLoaded = true;
+        return { apiKey, model };
+      })();
     }
-    return { apiKey, model };
+    return configPromise;
   };
 
   const engine: Engine = {
@@ -94,7 +96,7 @@ export function createGeminiEngine(): Engine {
       const cfg = await getConfig();
       const abort = createFetchAbortHandle(input.signal, 60_000);
       try {
-        const url = `${BASE}/${model}:generateContent`;
+        const url = `${BASE}/${cfg.model}:generateContent`;
         const resp = await fetch(url, {
           method: 'POST',
           signal: abort.signal,
