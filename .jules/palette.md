@@ -37,3 +37,7 @@
 ## 2026-08-31 - Add explicit helper text for sensitive inputs
 **Learning:** The Gemini API configuration lacked explicit helper text explaining the storage and privacy guarantees for the sensitive API Key, unlike the `OpenAiCompatSection`. Adding this text and linking it via `aria-describedby` provides immediate context to screen reader users and reassures all users about privacy.
 **Action:** Always provide explicit helper text for sensitive inputs (like API keys) explaining storage and privacy guarantees (e.g., 'Stored locally, encrypted'), and link this text to the input using the `aria-describedby` attribute for screen reader accessibility.
+
+## 2026-09-09 - Ensure skeleton loaders are properly announced by screen readers
+**Learning:** When implementing UI loading skeleton components (like the pulse effect shown while fetching configuration), simply using `aria-busy="true"` is not sufficient for screen readers to properly announce the loading state because they lack structural context.
+**Action:** When implementing UI loading skeleton components with `aria-busy="true"`, ensure they also include `role="status"` to establish them as live regions, allowing screen readers to implicitly announce the loading state contextually without interrupting the user's current activity.

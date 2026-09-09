@@ -38,7 +38,7 @@ export function GeminiSection() {
   }, [apiKey, model]);
 
   if (!loaded) {
-    return <div className="space-y-3 animate-pulse" aria-busy="true"><div className="h-4 bg-slate-200 rounded w-1/3" /><div className="h-9 bg-slate-100 rounded" /></div>;
+    return <div className="space-y-3 animate-pulse" aria-busy="true" role="status"><div className="h-4 bg-slate-200 rounded w-1/3" /><div className="h-9 bg-slate-100 rounded" /></div>;
   }
 
   return (
